@@ -37,7 +37,7 @@ class GoogleNlp:
             natural language API
 
             args:
-                text_file (string) : a file path to the text file to be analyzed
+                text_string (string): a text string to be analyzed
         """
         service_request = self.service.documents().analyzeSentiment(
             body = {
@@ -58,7 +58,7 @@ class GoogleNlp:
             natural language API
 
             args:
-                text_file (string): a file path to the text file to be analyzed
+                text_string (string): a text string to be analyzed
         """
         service_request = self.service.documents().analyzeEntities(
             body = {
@@ -79,7 +79,7 @@ class GoogleNlp:
             natural language API
 
             args:
-                text_file (string): a file path to the text file to be analyzed
+                text_string (string): a text string to be analyzed
                 extract_syntax (boolean): Extract syntax information?
                     default = True
                 extract_entities (boolean): Extract entities?

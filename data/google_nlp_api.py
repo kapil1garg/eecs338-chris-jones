@@ -13,17 +13,23 @@ DISCOVERY_URL = ('https://{api}.googleapis.com/'
 ENCODING_TYPE = 'UTF32'
 
 class GoogleNlp:
+    """
+        This class is a wrapper for the Google Natural Language API. Authentication
+        is handled using the recommended Application Default Credentials.
 
+        Todo:
+            * Pick and adhere to a consistent style
+    """
     def __init__(self):
         # Authenticate (boilerplate stuff from the API docs)
         self.http = httplib2.Http()
         self.credentials = GoogleCredentials.get_application_default().create_scoped(
             ['https://www.googleapis.com/auth/cloud-platform'])
         self.credentials.authorize(self.http)
-        self.service = discovery.build('language'
-                                       , 'v1beta1'
-                                       , http = self.http
-                                       , discoveryServiceUrl = DISCOVERY_URL)
+        self.service = discovery.build('language',
+                                       'v1beta1',
+                                       http = self.http,
+                                       discoveryServiceUrl = DISCOVERY_URL)
 
     def analyze_sentiment(self, text_string):
         """
@@ -42,8 +48,6 @@ class GoogleNlp:
             }
         )
         response = service_request.execute()
-        # polarity = response['documentSentiment']['polarity']
-        # magnitude = response['documentSentiment']['magnitude']
         return response
 
 
@@ -147,6 +151,8 @@ class GoogleNlp:
 
 
 if __name__ == '__main__':
+    # Simple Demo:
+    # take text file from the commandline and return all the possible data from the API
     parser = argparse.ArgumentParser()
     parser.add_argument('text_file', help = 'The path to the file you wish to analyze')
     args = parser.parse_args()

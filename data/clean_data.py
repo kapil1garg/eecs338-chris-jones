@@ -3,10 +3,10 @@ import re
 def split_article(article):
   metadata = []
   full_text = []
-  hit_metadata = False 
+  hit_metadata = False
   regex = r'Title: '
   for line in article:
-    if re.match(regex, line): 
+    if re.match(regex, line):
       hit_metadata = True
     if hit_metadata:
       metadata.append(line)
@@ -20,7 +20,7 @@ def write(lines, title):
   for line in lines:
     f.write(line)
   f.close()
-      
+
 def write_article_to_file(article, index):
   full_text, metadata = split_article(article)
   write(full_text, "clean_data/full_text/" + index)
@@ -57,9 +57,9 @@ def write_file(file_name, i):
   sections = find_sections(file_name)
   articles = find_articles(sections)
   for j in range(0, len(articles)):
-    index = str(i) + str(j)
-    write_article_to_file(articles[i], index)
-    
+    index = str(i) + str(j) + '.txt'
+    write_article_to_file(articles[j], index)
+
 if __name__ == '__main__':
   base_file_name = "ChrisJones-"
   for i in range(0, 9):

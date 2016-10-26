@@ -38,11 +38,9 @@ def parseDocument(docFilePath, allowedKeys):
 
     parsed_data = {}
     for i in range(len(sorted_keys)):
-        start_loc = matches[sorted_keys[i]]
+        start_loc = matches[sorted_keys[i]] + len(sorted_keys[i])
         try:
             end_loc = matches[sorted_keys[i + 1]]
-            print start_loc
-            print end_loc
         except:
             end_loc = None
         parsed_data[sorted_keys[i]] = full_doc[start_loc:end_loc]
@@ -58,4 +56,4 @@ def parseDocument(docFilePath, allowedKeys):
 
 if __name__ == '__main__':
     keez = getPossibleKeys(PATH_TO_KEYS)
-    print parseDocument('clean_data/full_text/0114', keez)['Full text:']
+    print parseDocument('clean_data/full_text/0114.txt', keez)['Full text:']

@@ -8,5 +8,5 @@ def upload(url, index, doc_type, idx, data):
     requests.post(url + '/' + index + '/' + doc_type + '/' + idx, json.dumps(data))
 
 def search(url, index, data):
-    r = requets.post(url + '/' + index, data = json.dumps(data))
+    r = requests.post(url + '/' + index, data = json.dumps(data))
     return r.text

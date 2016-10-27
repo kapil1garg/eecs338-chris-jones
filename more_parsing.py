@@ -62,5 +62,5 @@ if __name__ == '__main__':
     ctr = 0
     for f in os.listdir('data/clean_data/full_text'):
         if f.endswith('.txt'):
-            elastic.upload('http://localhost:9200', 'articles', 'article', str(ctr), parseDocument('data/clean_data/full_text/' + f, keez))
+            elastic.upload('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com/', 'articles', 'article', str(ctr), parseDocument('data/clean_data/full_text/' + f, keez))
             ctr = ctr + 1

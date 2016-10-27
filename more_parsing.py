@@ -1,6 +1,8 @@
 import re
 from copy import deepcopy
 import json
+import os
+import elastic
 
 """
     This file is used to parse the separated files (generated from clean_data.py) into
@@ -10,7 +12,7 @@ import json
 
 """
 
-PATH_TO_KEYS = 'keys.txt'
+PATH_TO_KEYS = 'data/keys.txt'
 
 def getPossibleKeys(keyFilePath):
     ht = {}
@@ -56,4 +58,9 @@ def parseDocument(docFilePath, allowedKeys):
 
 if __name__ == '__main__':
     keez = getPossibleKeys(PATH_TO_KEYS)
-    print parseDocument('clean_data/full_text/0114.txt', keez)['Full text:']
+    # print parseDocument('data/clean_data/full_text/0114.txt', keez)['Full text:']
+    ctr = 0
+    for f in os.listdir('data/clean_data/full_text'):
+        if f.endswith('.txt'):
+            elastic.upload('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com/', 'articles', 'article', str(ctr), parseDocument('data/clean_data/full_text/' + f, keez))
+            ctr = ctr + 1

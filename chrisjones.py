@@ -1,6 +1,7 @@
 import requests
 import json
 import elastic
+from google_nlp_api import GoogleNlp
 
 
 
@@ -14,10 +15,13 @@ class ChrisJones:
         # then generate appropriate response
 
         print query
+
+        a = GoogleNlp()
+        print a.annotate_text(query)
+
         # for now, just return the same stuff all the time
         payload = {"query": {"query_string": {"query": query.encode('utf-8'),
                                           "fields": ["Full text:"]}}}
-        print payload
         response = elastic.search(elastic.ES_URL, '_search', payload)
         response = json.loads(response)
 

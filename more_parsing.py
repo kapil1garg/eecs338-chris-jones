@@ -3,6 +3,7 @@ from copy import deepcopy
 import json
 import os
 import elastic
+from google_nlp_api import GoogleNlp
 
 """
     This file is used to parse the separated files (generated from clean_data.py) into
@@ -58,9 +59,13 @@ def parseDocument(docFilePath, allowedKeys):
 
 if __name__ == '__main__':
     keez = getPossibleKeys(PATH_TO_KEYS)
+    goog = GoogleNlp()
     # print parseDocument('data/clean_data/full_text/0114.txt', keez)['Full text:']
     ctr = 0
     for f in os.listdir('data/clean_data/full_text'):
         if f.endswith('.txt'):
-            elastic.upload('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com/', 'articles', 'article', str(ctr), parseDocument('data/clean_data/full_text/' + f, keez))
+            doc = json.dumps(goog.annotate_text(parseDocument('data/clean_data/full_text/' + f, keez)['Full text:']))
+            with open('data/google_results/' + f, 'w') as tmp:
+                tmp.write(doc)
+            # elastic.upload('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com/', 'articles', 'article', str(ctr), parseDocument('data/clean_data/full_text/' + f, keez))
             ctr = ctr + 1

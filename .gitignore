@@ -301,3 +301,4 @@ jspm_packages
 # Ignore all the data
 data/clean_data/full_text
 data/clean_data/metadata
+data/google_results

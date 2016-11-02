@@ -50,8 +50,6 @@ class GoogleNlp:
         response = service_request.execute()
         return response
 
-
-
     def analyze_entities(self, text_string):
         """
             Run entity extraction on text from a string using the Google
@@ -72,6 +70,28 @@ class GoogleNlp:
         response = service_request.execute()
         return response
 
+    def analyze_syntax(self, text_string):
+        """
+            Run entity extraction on text from a string using the Google
+            natural language API
+
+            args:
+                text_string (string): a text string to be analyzed
+        """
+        service_request = self.service.documents().annotateText(
+            body = {
+                'document': {
+                    'type': 'PLAIN_TEXT',
+                    'content': text_string
+                },
+                'features': {
+                    'extractSyntax': True,
+                },
+                'encodingType': ENCODING_TYPE
+            }
+        )
+        response = service_request.execute()
+        return response
 
     def annotate_text(self, text_string, extract_syntax = True, extract_entities = True, extract_sentiment = True):
         """

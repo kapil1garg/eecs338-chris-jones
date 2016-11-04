@@ -3,9 +3,9 @@ This module is used to find key words and phrases in the articles index and map 
 text to sentiment values in the googles index
 """
 import json
+import numpy as np
 import elastic
-
-
+from scipy import stats
 class ElasticSentimentSelection(object):
     """
     Conducts a search on an index and then finds a matching document
@@ -39,12 +39,35 @@ class ElasticSentimentSelection(object):
 
     def get_relevant_documents(self, search_phrase):
         """
-        Fetches relevant documents from elastic search based on query
+        Fetches relevant documents from elastic search based on query.
+
+        Get only the documents that have a score greater than the average score.
         """
-        payload = {'query': {'query_string': {'query': search_phrase.encode('utf-8'),
+        #  get all scores for top 10K documents
+        index = self.search_index + '/_search'
+        score_payload = {'from': 0, 'size': 10000,
+                         'fields': '_score', 'query': {'query_string': {
+                                                       'query': search_phrase.encode('utf-8'),
+                                                       'fields': ['Full text:']}}}
+        score_response = json.loads(elastic.search(elastic.ES_URL, index, score_payload))
+
+        # create list of scores with 0 excluded
+        scores = []
+        for i in score_response['hits']['hits']:
+            float_score = float(i['_score'])
+            if float_score > 0:
+                scores.append(float_score)
+
+        median_score = np.median(scores)
+        quartile = np.percentile(scores, 75)
+
+        # get responses where min_score >= median_score
+        payload = {'min_score': quartile,
+                   'from': 0, 'size': 10000,
+                   'query': {'query_string': {'query': search_phrase.encode('utf-8'),
                                           'fields': ['Full text:']}}}
 
-        index = self.search_index + '/_search'
+
         response = json.loads(elastic.search(elastic.ES_URL, index, payload))
         return response
 

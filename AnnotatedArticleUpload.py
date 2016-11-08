@@ -181,7 +181,6 @@ class AnnotatedArticlesUploader(object):
 
         return output_dict
 
-
     def upload_to_es(self, reindex_nested_features=False):
         """
         Loops through each file, loads in dictionaries, combines, and uploads to elastic search
@@ -216,7 +215,7 @@ def main():
     google_annotations = set([x for x in os.listdir(google_annotations_dir) if x.endswith('.txt')])
 
     aauploader = AnnotatedArticlesUploader(elastic.ES_URL, \
-                                         'annotated-articles', 'annotated-article', \
+                                         'flattened-articles', 'flattened-article', \
                                          full_text, metadata, google_annotations, keys, \
                                          full_text_dir, metadata_dir, google_annotations_dir)
     aauploader.upload_to_es(reindex_nested_features=True)

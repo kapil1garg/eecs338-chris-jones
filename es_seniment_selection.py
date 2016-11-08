@@ -5,7 +5,7 @@ text to sentiment values in the googles index
 import json
 import numpy as np
 import elastic
-from scipy import stats
+
 class ElasticSentimentSelection(object):
     """
     Conducts a search on an index and then finds a matching document
@@ -18,6 +18,15 @@ class ElasticSentimentSelection(object):
         self.sentiment_field = sentiment_field
 
     def get_sentiment_for_phrase(self, search_phrase):
+        """
+        Computes average sentiment from all relevant documents returned from search.
+
+        inputs:
+            search_phrase (string): string to search for in ES
+
+        output:
+            (float): average polarity from all related documents
+        """
         # get relevant documents
         relevant_documents = self.get_relevant_documents(search_phrase)
 
@@ -42,13 +51,20 @@ class ElasticSentimentSelection(object):
         Fetches relevant documents from elastic search based on query.
 
         Get only the documents that have a score greater than the average score.
+
+        input:
+            search_phrase (string): string to search for in ES
+
+        output:
+            (dict): dictionary of fetched documents
         """
         #  get all scores for top 10K documents
         index = self.search_index + '/_search'
-        score_payload = {'from': 0, 'size': 10000,
-                         'fields': '_score', 'query': {'query_string': {
-                                                       'query': search_phrase.encode('utf-8'),
-                                                       'fields': ['Full text:']}}}
+        score_payload = {'from': 0, 'size': 10000, \
+                         'fields': '_score', \
+                         'query': {'query_string': { \
+                                   'query': search_phrase.encode('utf-8'), \
+                                   'fields': ['Full text:']}}}
         score_response = json.loads(elastic.search(elastic.ES_URL, index, score_payload))
 
         # create list of scores with 0 excluded
@@ -62,10 +78,10 @@ class ElasticSentimentSelection(object):
         quartile = np.percentile(scores, 75)
 
         # get responses where min_score >= median_score
-        payload = {'min_score': quartile,
-                   'from': 0, 'size': 10000,
-                   'query': {'query_string': {'query': search_phrase.encode('utf-8'),
-                                          'fields': ['Full text:']}}}
+        payload = {'min_score': quartile, \
+                   'from': 0, 'size': 10000, \
+                   'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
+                                              'fields': ['Full text:']}}}
 
 
         response = json.loads(elastic.search(elastic.ES_URL, index, payload))
@@ -74,6 +90,12 @@ class ElasticSentimentSelection(object):
     def get_document_sentiment(self, indicies):
         """
         Fetches sentiments for previously searched for documents
+
+        input:
+            indicies (list): indicies to get google sentiment from
+
+        output:
+            (dict): sentiment for indices
         """
         # query elastic search
         payload = {'query': {'ids': {'values': indicies}}}
@@ -90,6 +112,9 @@ class ElasticSentimentSelection(object):
         return sentiment_dict
 
 def main():
+    """
+    Called when module is called from command line
+    """
     ess = ElasticSentimentSelection('articles', 'Full Text:', 'googles', 'documentSentiment')
     print 'Phrase: Alexander Hamilton, Polarity: ' + \
           str(ess.get_sentiment_for_phrase('Alexander Hamilton'))

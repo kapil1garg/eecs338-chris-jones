@@ -15,7 +15,7 @@ class QueryAnalyzer:
 
       input:
         query (string): The query to be anylyzed
-  
+
       return:
         entites (list of strings): List of entities in query
     """
@@ -31,9 +31,9 @@ class QueryAnalyzer:
 
       input:
         query (string): The query to be anylyzed
-  
+
       return:
-        (string) || None: Noun subject of query 
+        (string) || None: Noun subject of query
     """
     return_blob = self.google_nlp.analyze_syntax(query)
     for token in return_blob['tokens']:
@@ -42,3 +42,20 @@ class QueryAnalyzer:
 
   def analyze_dependencies(self, query):
     print "Not yet implemented"
+
+  def annotate_query(self, query):
+    print "Not yet implemented"
+
+  def get_keywords(self, query):
+    return_blob = self.google_nlp.analyze_syntax(query)
+    keywords = {'keywords': {'NOUN': [], 'VERB': []}, 'edges': {'ROOT': [], 'NSUBJ': [], 'POBJ': [], 'ATTR': []}}
+    for token in return_blob['tokens']:
+      if token['partOfSpeech']['tag'] in keywords['keywords'].keys():
+        keywords['keywords'][token['partOfSpeech']['tag']].append(token['text']['content'])
+      if token['dependencyEdge']['label'] in keywords['edges'].keys():
+        keywords['edges'][token['dependencyEdge']['label']].append(token['text']['content'])
+    return keywords
+
+if __name__ == '__main__':
+  a = QueryAnalyzer()
+  print 'Keywords: ', a.get_keywords('What did you think of the acting in Hamilton?')

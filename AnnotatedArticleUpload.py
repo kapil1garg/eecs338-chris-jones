@@ -3,6 +3,7 @@ This module is used to upload combined parsed full text, metadata, and google an
 """
 import os
 import json
+import copy
 import elastic
 import more_parsing as mp
 
@@ -96,9 +97,96 @@ class AnnotatedArticlesUploader(object):
 
         return output
 
-    def upload_to_es(self):
+    def reindex_features(self, combined_dict):
+        """
+        Flattens sentences, tokens, and entities structure to allow for nested querying
+
+        input:
+            combined_dict (dict): dictionary of combined full text, metadata, and google annotations
+
+        output:
+            (dict): combined_dict with reindexed features
+        """
+        # make a deep copy of combined dict to output
+        output_dict = copy.deepcopy(combined_dict)
+
+        # replace sentences
+        sentence_count = len(output_dict['sentences'])
+        new_sentence_list = [{} for x in xrange(sentence_count)]
+
+        for i in xrange(sentence_count):
+            current_sentence = output_dict['sentences'][i]
+            new_sentence = {
+                'content': current_sentence['text']['content'],
+                'offset': current_sentence['text']['beginOffset']
+            }
+            new_sentence_list[i] = new_sentence
+
+        output_dict['sentences'] = new_sentence_list
+
+        # replace tokens
+        token_count = len(output_dict['tokens'])
+        new_token_list = [{} for x in xrange(token_count)]
+
+        for i in xrange(token_count):
+            current_token = output_dict['tokens'][i]
+            new_token = {
+                'content': current_token['text']['content'],
+                'offset': current_token['text']['beginOffset'],
+                'partOfSpeech': current_token['partOfSpeech']['tag'],
+                'dependencyEdgeIndex': current_token['dependencyEdge']['headTokenIndex'],
+                'dependencyEdgeLabel': current_token['dependencyEdge']['label'],
+                'lemma': current_token['lemma']
+            }
+
+            new_token_list[i] = new_token
+
+        output_dict['tokens'] = new_token_list
+
+        # replace entities
+        entity_count = len(output_dict['entities'])
+        new_entity_list = [{} for x in xrange(entity_count)]
+        master_mention_list = []
+
+        for i in xrange(entity_count):
+            #  parse out entities
+            current_entity = output_dict['entities'][i]
+            new_entity = {
+                'metadata': current_entity['metadata'],
+                'name': current_entity['name'],
+                'salience': current_entity['salience'],
+                'type': current_entity['type']
+            }
+
+            new_entity_list[i] = new_entity
+
+            # parse out mentions
+            mention_count = len(current_entity['mentions'])
+            new_mention_list = [{} for x in xrange(mention_count)]
+
+            for j in xrange(mention_count):
+                current_mention = current_entity['mentions'][j]
+                new_mention = {
+                    'content': current_mention['text']['content'],
+                    'offset': current_mention['text']['beginOffset'],
+                    'entityName': current_entity['name']
+                }
+
+                new_mention_list[j] = new_mention
+
+            master_mention_list += new_mention_list
+
+        output_dict['entities'] = new_entity_list
+        output_dict['mentions'] = master_mention_list
+
+        return output_dict
+
+    def upload_to_es(self, reindex_nested_features=False):
         """
         Loops through each file, loads in dictionaries, combines, and uploads to elastic search
+
+        inputs:
+            reindex_nested_features (bool): optional boolean to reindex features for nested search
         """
         counter = 0
         for i in self.fulltext:
@@ -106,6 +194,9 @@ class AnnotatedArticlesUploader(object):
             if i in self.metadata and i in self.google_results:
                 payload = self.combine_data(self.load_fulltext(i), self.load_metadata(i), \
                                             self.load_annotations(i))
+
+                if reindex_nested_features:
+                    payload = self.reindex_features(payload)
 
                 elastic.upload(self.url, self.index, self.doc_type, str(counter), payload)
                 counter += 1
@@ -124,10 +215,10 @@ def main():
     google_annotations = set([x for x in os.listdir(google_annotations_dir) if x.endswith('.txt')])
 
     aauploader = AnnotatedArticlesUploader(elastic.ES_URL, \
-                                         'annotated-articles', 'annotated-article', \
+                                         'flattened-articles', 'flattened-article', \
                                          full_text, metadata, google_annotations, keys, \
                                          full_text_dir, metadata_dir, google_annotations_dir)
-    aauploader.upload_to_es()
+    aauploader.upload_to_es(reindex_nested_features=True)
 
 if __name__ == '__main__':
     main()

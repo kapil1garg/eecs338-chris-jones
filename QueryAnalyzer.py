@@ -53,7 +53,7 @@ class QueryAnalyzer:
       if token['partOfSpeech']['tag'] in keywords['keywords'].keys():
         keywords['keywords'][token['partOfSpeech']['tag']].append(token['text']['content'])
       if token['dependencyEdge']['label'] in keywords['edges'].keys():
-        keywords['edges'][token['dependencyEdge']['label']].append(token['text']['content'])
+        keywords['edges'][token['dependencyEdge']['label']].append(token['text']['content' ])
     return keywords
 
 if __name__ == '__main__':

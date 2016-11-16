@@ -1,14 +1,16 @@
 import requests
 import json
 import elastic
+from elastic import ES_URL
 from google_nlp_api import GoogleNlp
 import re
-
+from QueryAnalyzer import QueryAnalyzer
+import random
 
 
 class ChrisJones:
     def __init__(self):
-        # Do ES auth stuff
+        self.query_analyzer = QueryAnalyzer()
         print 'ChrisJones activated'
 
     def respond(self, query):
@@ -17,41 +19,108 @@ class ChrisJones:
 
         # print query
 
-        a = GoogleNlp()
-        annotated_query = a.annotate_text(query)
-        print annotated_query
-
+        annotated_query = self.query_analyzer.get_keywords(query)
 
         # for now, just return the same stuff all the time
         payload = {"query": {"query_string": {"query": query.encode('utf-8'),
                                           "fields": ["Full text:"]}}}
-        response = elastic.search(elastic.ES_URL, 'articles/_search', payload)
-        response = json.loads(response)
-
-        hits = response['hits']['hits']
-        max_score = response['hits']['max_score']
 
 
-        for a in hits:
-            if a["_score"] == max_score:
-                match_id = a["_id"]
-                # return a["_source"]['Full text:']
-
-        payload = {"query": {"ids": {"values": [match_id]}}}
-        annotated_article = elastic.search(elastic.ES_URL, 'googles/_search', payload)
-        annotated_article = json.loads(annotated_article)
-        sentences = annotated_article['hits']['hits'][0]['_source']['sentences']
-        sentences = [i['text']['content'] for i in sentences]
-        sentences = [i for i in sentences if re.search('Hamilton', i) != None]
-        return sentences[len(sentences) - 2]
+        r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
+        r = json.loads(r.text)
+        r = r['hits']['hits']
+        ids = [i['_id'] for i in r]
+        print ids
 
 
+        payload = {
+            "_source": ["sentences.content"],
+            "query": {
+                "bool": {
+                    "must": [{
+                        "ids": {
+                            "values": ids
+                        }},
+                             {"nested" : {
+                                 "path" : "sentences",
+                                 "query" : {
+                                     "bool": {
+                                         "must": [
+                                             {"match": {
+                                                 "sentences.content": annotated_query['keywords']['NOUN'][0]
+                                             }
+                                             }
+                                         ]
+                                     }
+                                 },
+                                 "inner_hits": {}
+                             }}]
+                }
+            }
+           }
+        r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
+        r = json.loads(r.text)
+        r = [i['inner_hits']['sentences']['hits'] for i in r['hits']['hits']]
 
 
+        all_sentences = []
+        for h in r:
+            for i in h['hits']:
+                # print i['_source']['content']
+                all_sentences.append(i['_source']['content'])
+                # print(r)
+        return all_sentences[0]
 
-if __name__ == '__main__':
-    query = 'alexander hamilton'
+
+def main():
+    query = 'Steppenwolf theatre'
     payload = {"query": {"query_string": {"query": query,
                                           "fields": ["Full text:"]}}}
-    r = requests.post('http://localhost:9200/' + '_search', data = json.dumps(payload))
-    print(r.text)
+
+    r = requests.post('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com' + '/flattened-articles/_search', data = json.dumps(payload))
+    r = json.loads(r.text)
+    r = r['hits']['hits']
+    ids = [i['_id'] for i in r]
+    print ids
+
+
+    payload = {
+        "_source": ["sentences.content"],
+        "query": {
+            "bool": {
+                "must": [{
+                    "ids": {
+                        "values": ids
+                    }},
+                         {"nested" : {
+                             "path" : "sentences",
+                             "query" : {
+                                 "bool": {
+                                     "must": [
+                                         {"match": {
+                                             "sentences.content": "acting"
+                                         }
+                                         }
+                                     ]
+                                 }
+                             },
+                             "inner_hits": {}
+                         }}]
+            }
+        }
+    }
+    r = requests.post('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com' + '/flattened-articles/_search', data = json.dumps(payload))
+    r = json.loads(r.text)
+    # print(r['hits']['hits'].keys())
+    r = [i['inner_hits']['sentences']['hits'] for i in r['hits']['hits']]
+
+
+    all_sentences = []
+    for h in r:
+        for i in h['hits']:
+            print i['_source']['content']
+            # all_sentences.append(i['_source']['content'])
+            # print(r)
+
+if __name__ == '__main__':
+    main()

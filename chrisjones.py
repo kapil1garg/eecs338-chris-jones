@@ -13,25 +13,31 @@ class ChrisJones:
         self.query_analyzer = QueryAnalyzer()
         print 'ChrisJones activated'
 
-    def respond(self, query):
-        # determine question type
-        # then generate appropriate response
-
-        # print query
-
-        annotated_query = self.query_analyzer.get_keywords(query)
-
-        # for now, just return the same stuff all the time
-        payload = {"query": {"query_string": {"query": query.encode('utf-8'),
-                                              "fields": ["Full text:"]}}}
-
+    def get_rel_doc_ids(self, query):
+        payload = {
+            "query": {
+                "query_string": {
+                    "query": query.encode('utf-8'),
+                    "fields": ["Full text:"]
+                }
+            }
+        }
 
         r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
         r = json.loads(r.text)
         r = r['hits']['hits']
         ids = [i['_id'] for i in r]
-        print ids
+        return ids
 
+
+    def respond(self, query):
+        # determine question type
+        # then generate appropriate response
+
+        annotated_query = self.query_analyzer.get_keywords(query)
+
+        # find relevant documents
+        ids = self.get_rel_doc_ids(query)
 
         payload = {
             "_source": ["sentences.content"],

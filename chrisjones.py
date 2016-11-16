@@ -23,7 +23,7 @@ class ChrisJones:
 
         # for now, just return the same stuff all the time
         payload = {"query": {"query_string": {"query": query.encode('utf-8'),
-                                          "fields": ["Full text:"]}}}
+                                              "fields": ["Full text:"]}}}
 
 
         r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
@@ -57,7 +57,7 @@ class ChrisJones:
                              }}]
                 }
             }
-           }
+        }
         r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
         r = json.loads(r.text)
         r = [i['inner_hits']['sentences']['hits'] for i in r['hits']['hits']]

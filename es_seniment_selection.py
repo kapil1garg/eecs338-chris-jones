@@ -30,21 +30,15 @@ class ElasticSentimentSelection(object):
         # get relevant documents
         relevant_documents = self.get_relevant_documents(search_phrase)
 
-        # find all indicies where score >= 0.8
-        indicies = []
-        for i in relevant_documents['hits']['hits']:
-            indicies.append(i['_id'])
-
-        # find corresponding sentiment documents
-        document_sentiments = self.get_document_sentiment(indicies)
-
         # return average polarity for phrase
         average_polarity = 0
-        for i in document_sentiments:
-            average_polarity += float(document_sentiments[i]['polarity'])
+        for i in relevant_documents['hits']['hits']:
+            average_polarity += float(i['_source']['documentSentiment']['polarity'])
 
-        return average_polarity / (len(document_sentiments.keys()) + 0.0000001)
+        return average_polarity / (len(relevant_documents.keys()) + 0.0000001)
 
+    def get_best_sentence():
+        return 'This is a dummy sentence'
 
     def get_relevant_documents(self, search_phrase):
         """
@@ -60,7 +54,7 @@ class ElasticSentimentSelection(object):
         """
         #  get all scores for top 10K documents
         index = self.search_index + '/_search'
-        score_payload = {'from': 0, 'size': 10000, \
+        score_payload = {'from': 0, 'size': 1000, \
                          'fields': '_score', \
                          'query': {'query_string': { \
                                    'query': search_phrase.encode('utf-8'), \
@@ -79,7 +73,7 @@ class ElasticSentimentSelection(object):
 
         # get responses where min_score >= median_score
         payload = {'min_score': quartile, \
-                   'from': 0, 'size': 10000, \
+                   'from': 0, 'size': 1000, \
                    'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
                                               'fields': ['Full text:']}}}
 
@@ -87,35 +81,11 @@ class ElasticSentimentSelection(object):
         response = json.loads(elastic.search(elastic.ES_URL, index, payload))
         return response
 
-    def get_document_sentiment(self, indicies):
-        """
-        Fetches sentiments for previously searched for documents
-
-        input:
-            indicies (list): indicies to get google sentiment from
-
-        output:
-            (dict): sentiment for indices
-        """
-        # query elastic search
-        payload = {'query': {'ids': {'values': indicies}}}
-
-        index = self.sentiment_index + '/_search'
-        response = json.loads(elastic.search(elastic.ES_URL, index, payload))
-
-        # parse into dictionary
-        sentiment_dict = dict()
-
-        for i in response['hits']['hits']:
-            sentiment_dict[i['_id']] = i['_source'][self.sentiment_field]
-
-        return sentiment_dict
-
 def main():
     """
     Called when module is called from command line
     """
-    ess = ElasticSentimentSelection('articles', 'Full Text:', 'googles', 'documentSentiment')
+    ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', 'googles', 'documentSentiment')
     print 'Phrase: Alexander Hamilton, Polarity: ' + \
           str(ess.get_sentiment_for_phrase('Alexander Hamilton'))
     print 'Phrase: Second City, Polarity: ' + \

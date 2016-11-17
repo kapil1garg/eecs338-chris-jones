@@ -57,7 +57,7 @@ class ChrisJones:
         ids = self.get_rel_doc_ids(query)
 
         payload = {
-            "_source": ["sentences.content"],
+            "_source": ["sentences.content", "ProQ:"],
             "query": {
                 "bool": {
                     "must": [{
@@ -83,16 +83,21 @@ class ChrisJones:
         }
         r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
         r = json.loads(r.text)
-        r = [i['inner_hits']['sentences']['hits'] for i in r['hits']['hits']]
+        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:']) for i in r['hits']['hits']]
 
 
-        all_sentences = []
-        for h in r:
-            for i in h['hits']:
-                # print i['_source']['content']
-                all_sentences.append(i['_source']['content'])
-                # print(r)
-        return '*Q:* {0}\n*A:* {1}'.format(question_type, all_sentences[0])
+        # all_sentences = []
+        # for h in r:
+        #     for i in h['hits']:
+        #         print i
+        #         # print i['_source']['content']
+        #         all_sentences.append(i['_source']['content'])
+        #         # print(r)
+
+        article_title = re.split('title=', r[0][1])[1].replace('+', ' ').replace('&', '')
+
+
+        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, r[0][0]['hits'][0]['_source']['content'],article_title)
 
     def route_query(self, query, keywords):
         mod_query = self.query_analyzer.get_framework(query, keywords)

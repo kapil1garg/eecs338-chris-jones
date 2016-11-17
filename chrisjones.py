@@ -51,6 +51,7 @@ class ChrisJones:
         # then generate appropriate response
 
         annotated_query = self.query_analyzer.get_keywords(query)
+        question_type = self.route_query(query, annotated_query)
 
         # find relevant documents
         ids = self.get_rel_doc_ids(query)
@@ -91,7 +92,7 @@ class ChrisJones:
                 # print i['_source']['content']
                 all_sentences.append(i['_source']['content'])
                 # print(r)
-        return all_sentences[0]
+        return '*Q:* {0}\n*A:* {1}'.format(question_type, all_sentences[0])
 
     def route_query(self, query, keywords):
         mod_query = self.query_analyzer.get_framework(query, keywords)

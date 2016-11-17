@@ -57,6 +57,8 @@ class QueryAnalyzer:
     return keywords
 
   def get_framework(self, query, keywords):
+    for g in ['comedy', 'drama', 'tragedy', 'satire', 'farce', 'musicals']:
+      query = query.replace(g, 'GENRE')
     for n in keywords['keywords']['NOUN']:
       query = query.replace(n, 'NOUN')
     return query

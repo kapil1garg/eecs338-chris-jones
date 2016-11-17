@@ -12,6 +12,21 @@ from fuzzywuzzy import process
 class ChrisJones:
     def __init__(self):
         self.query_analyzer = QueryAnalyzer()
+        self.question_types = [
+            'what do you think is good NOUN',
+            'I want to got to THEATER. Do you think it is good',
+            'what did you think of SHOW',
+            'what do you think of NOUN in SHOW',
+            'what do you think of ACTOR',
+            'do you think ACTOR is a good NOUN',
+            'what is the best performance right now',
+            'what was your favorite show at THEATER',
+            'what was ACTOR best performance',
+            'how do you like your GENRE',
+            'what embodies the essence of chicago theater',
+            'how is chicago different from New York?',
+            'How has THEATER changed over time'
+        ]
         print 'ChrisJones activated'
 
     def get_rel_doc_ids(self, query):
@@ -78,35 +93,22 @@ class ChrisJones:
                 # print(r)
         return all_sentences[0]
 
+    def route_query(self, query, keywords):
+        mod_query = self.query_analyzer.get_framework(query, keywords)
+        print mod_query
+        matches = process.extract(mod_query, self.question_types, limit = 1)
+        return matches[0][0]
+
+
 
 def main():
     # Work on query routing now
-    question_types = [
-        'what do you think is good NOUN',
-        'I want to got to THEATER. Do you think it is good',
-        'what did you think of SHOW',
-        'what do you think of NOUN in SHOW',
-        'what do you think of ACTOR',
-        'do you think ACTOR is a good NOUN',
-        'what is the best performance right now',
-        'what was your favorite show at THEATER',
-        'what was ACTOR best performance',
-        'how do you like your GENRE',
-        'what embodies the essence of chicago theater',
-        'how is chicago different from New York?',
-        'How has THEATER changed over time'
-    ]
-
+    cj = ChrisJones()
     query = 'How has the Goodman changed over time'
 
     qa = QueryAnalyzer()
     annotated_query = qa.get_keywords(query)
-    mod_query = qa.get_framework(query, annotated_query)
-
-    print mod_query
-
-    matches = process.extract(mod_query, question_types, limit = 1)
-    print matches
+    print cj.route_query(query, annotated_query)
 
 if __name__ == '__main__':
     main()

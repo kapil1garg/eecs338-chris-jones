@@ -56,6 +56,11 @@ class QueryAnalyzer:
         keywords['edges'][token['dependencyEdge']['label']].append(token['text']['content' ])
     return keywords
 
+  def get_framework(self, query, keywords):
+    for n in keywords['keywords']['NOUN']:
+      query = query.replace(n, 'NOUN')
+    return query
+
 if __name__ == '__main__':
   a = QueryAnalyzer()
   print 'Keywords: ', a.get_keywords('What did you think of the acting in Hamilton?')

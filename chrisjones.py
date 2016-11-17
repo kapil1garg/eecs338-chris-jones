@@ -6,6 +6,7 @@ from google_nlp_api import GoogleNlp
 import re
 from QueryAnalyzer import QueryAnalyzer
 import random
+from fuzzywuzzy import process
 
 
 class ChrisJones:
@@ -79,54 +80,33 @@ class ChrisJones:
 
 
 def main():
-    query = 'Steppenwolf theatre'
-    payload = {"query": {"query_string": {"query": query,
-                                          "fields": ["Full text:"]}}}
+    # Work on query routing now
+    question_types = [
+        'what do you think is good NOUN',
+        'I want to got to THEATER. Do you think it is good',
+        'what did you think of SHOW',
+        'what do you think of NOUN in SHOW',
+        'what do you think of ACTOR',
+        'do you think ACTOR is a good NOUN',
+        'what is the best performance right now',
+        'what was your favorite show at THEATER',
+        'what was ACTOR best performance',
+        'how do you like your GENRE',
+        'what embodies the essence of chicago theater',
+        'how is chicago different from New York?',
+        'How has THEATER changed over time'
+    ]
 
-    r = requests.post('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com' + '/flattened-articles/_search', data = json.dumps(payload))
-    r = json.loads(r.text)
-    r = r['hits']['hits']
-    ids = [i['_id'] for i in r]
-    print ids
+    query = 'How has the Goodman changed over time'
 
+    qa = QueryAnalyzer()
+    annotated_query = qa.get_keywords(query)
+    mod_query = qa.get_framework(query, annotated_query)
 
-    payload = {
-        "_source": ["sentences.content"],
-        "query": {
-            "bool": {
-                "must": [{
-                    "ids": {
-                        "values": ids
-                    }},
-                         {"nested" : {
-                             "path" : "sentences",
-                             "query" : {
-                                 "bool": {
-                                     "must": [
-                                         {"match": {
-                                             "sentences.content": "acting"
-                                         }
-                                         }
-                                     ]
-                                 }
-                             },
-                             "inner_hits": {}
-                         }}]
-            }
-        }
-    }
-    r = requests.post('http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com' + '/flattened-articles/_search', data = json.dumps(payload))
-    r = json.loads(r.text)
-    # print(r['hits']['hits'].keys())
-    r = [i['inner_hits']['sentences']['hits'] for i in r['hits']['hits']]
+    print mod_query
 
-
-    all_sentences = []
-    for h in r:
-        for i in h['hits']:
-            print i['_source']['content']
-            # all_sentences.append(i['_source']['content'])
-            # print(r)
+    matches = process.extract(mod_query, question_types, limit = 1)
+    print matches
 
 if __name__ == '__main__':
     main()

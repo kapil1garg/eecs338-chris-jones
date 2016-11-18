@@ -7,6 +7,7 @@ import re
 from QueryAnalyzer import QueryAnalyzer
 import random
 from fuzzywuzzy import process
+from es_seniment_selection import ElasticSentimentSelection
 
 
 class ChrisJones:
@@ -25,7 +26,11 @@ class ChrisJones:
             'how do you like your GENRE',
             'what embodies the essence of chicago theater',
             'how is chicago different from New York?',
-            'How has THEATER changed over time'
+            'How has THEATER changed over time',
+            'do you like NOUN',
+            'do you hate NOUN',
+            'do you love NOUN',
+            'do you dislike NOUN'
         ]
         print 'ChrisJones activated'
 
@@ -52,6 +57,14 @@ class ChrisJones:
 
         annotated_query = self.query_analyzer.get_keywords(query)
         question_type = self.route_query(query, annotated_query)
+
+        if question_type in [
+            'do you like NOUN',
+            'do you hate NOUN',
+            'do you love NOUN',
+            'do you dislike NOUN']:
+            ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', 'googles', 'documentSentiment')
+        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, ess.get_best_sentence(query),'AGGREGATION QUERY')
 
         # find relevant documents
         ids = self.get_rel_doc_ids(query)

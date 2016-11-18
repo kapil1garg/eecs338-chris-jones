@@ -93,7 +93,7 @@ class ElasticSentimentSelection(object):
         """
         #  get all scores for top 10K documents
         index = self.search_index + '/_search'
-        score_payload = {'from': 0, 'size': 1000, \
+        score_payload = {'from': 0, 'size': 100, \
                          'fields': '_score', \
                          'query': {'query_string': { \
                                    'query': search_phrase.encode('utf-8'), \
@@ -112,7 +112,7 @@ class ElasticSentimentSelection(object):
 
         # get responses where min_score >= median_score
         payload = {'min_score': quartile, \
-                   'from': 0, 'size': 1000, \
+                   'from': 0, 'size': 100, \
                    'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
                                               'fields': ['Full text:']}}}
 

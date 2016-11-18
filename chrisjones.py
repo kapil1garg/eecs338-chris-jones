@@ -64,7 +64,7 @@ class ChrisJones:
             'do you love NOUN',
             'do you dislike NOUN']:
             ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', 'googles', 'documentSentiment')
-        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, ess.get_best_sentence(query),'AGGREGATION QUERY')
+            return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, ess.get_best_sentence(query),'AGGREGATION QUERY')
 
         # find relevant documents
         ids = self.get_rel_doc_ids(query)

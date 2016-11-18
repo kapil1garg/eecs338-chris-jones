@@ -3,9 +3,9 @@ This module is used to find key words and phrases in the articles index and map 
 text to sentiment values in the googles index
 """
 import json
+import re
 import numpy as np
 import elastic
-import re
 
 class ElasticSentimentSelection(object):
     """
@@ -17,7 +17,7 @@ class ElasticSentimentSelection(object):
         self.text_search_field = text_search_field
         self.sentiment_index = sentiment_index
         self.sentiment_field = sentiment_field
-        self.curr_relevant_documents = {}
+        self.relevant_documents = {}
 
     def get_sentiment_for_phrase(self, search_phrase):
         """
@@ -30,22 +30,21 @@ class ElasticSentimentSelection(object):
             (float): average polarity from all related documents
         """
         # get relevant documents
-        relevant_documents = self.get_relevant_documents(search_phrase)
-        self.curr_relevant_documents = relevant_documents
+        self.relevant_documents = self.get_relevant_documents(search_phrase)
 
         # return average polarity for phrase
         average_polarity = 0
-        for i in relevant_documents['hits']['hits']:
+        for i in self.relevant_documents['hits']['hits']:
             average_polarity += float(i['_source']['documentSentiment']['polarity'])
 
-        return average_polarity / (len(relevant_documents.keys()) + 0.0000001)
+        return average_polarity / (len(self.relevant_documents.keys()) + 0.0000001)
 
     def get_best_sentence(self, search_phrase):
         # get sentiment for phrase
         average_sentiment = self.get_sentiment_for_phrase(search_phrase)
 
         # get relevant documents
-        relevant_documents = self.get_relevant_documents(search_phrase)['hits']['hits']
+        relevant_documents = self.relevant_documents['hits']['hits']
 
         # find closest document
         closest_doc = self.get_closest_document(average_sentiment)
@@ -63,7 +62,7 @@ class ElasticSentimentSelection(object):
         closest = {}
         closest_value = 10000000
 
-        for i in self.curr_relevant_documents['hits']['hits']:
+        for i in self.relevant_documents['hits']['hits']:
             current_diff = abs(i['_source']['documentSentiment']['polarity'])
 
             if current_diff < closest_value:
@@ -115,7 +114,8 @@ class ElasticSentimentSelection(object):
         quartile = np.percentile(scores, 75)
 
         # get responses where min_score >= median_score
-        payload = {'min_score': quartile, \
+        payload = {'_source': ['ProQ:', 'sentences', 'documentSentiment'],
+                   'min_score': quartile, \
                    'from': 0, 'size': 100, \
                    'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
                                               'fields': ['Full text:']}}}
@@ -129,15 +129,7 @@ def main():
     Called when module is called from command line
     """
     ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', 'googles', 'documentSentiment')
-    print ess.get_best_sentence('Alexander Hamilton')
-
-    # print 'Phrase: Alexander Hamilton, Polarity: ' + \
-    #       str(ess.get_sentiment_for_phrase('Alexander Hamilton'))
-    # print 'Phrase: Second City, Polarity: ' + \
-    #       str(ess.get_sentiment_for_phrase('Second City'))
-    # print 'Phrase: Chicago Style Theater, Polarity: ' + \
-    #       str(ess.get_sentiment_for_phrase('Chicago Style Theater'))
-
+    print ess.get_best_sentence('Aladdin')
 
 if __name__ == '__main__':
     main()

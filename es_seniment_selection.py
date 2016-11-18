@@ -5,6 +5,7 @@ text to sentiment values in the googles index
 import json
 import numpy as np
 import elastic
+import re
 
 class ElasticSentimentSelection(object):
     """
@@ -16,6 +17,7 @@ class ElasticSentimentSelection(object):
         self.text_search_field = text_search_field
         self.sentiment_index = sentiment_index
         self.sentiment_field = sentiment_field
+        self.curr_relevant_documents = {}
 
     def get_sentiment_for_phrase(self, search_phrase):
         """
@@ -29,6 +31,7 @@ class ElasticSentimentSelection(object):
         """
         # get relevant documents
         relevant_documents = self.get_relevant_documents(search_phrase)
+        self.curr_relevant_documents = relevant_documents
 
         # return average polarity for phrase
         average_polarity = 0
@@ -41,16 +44,40 @@ class ElasticSentimentSelection(object):
         # get sentiment for phrase
         average_sentiment = self.get_sentiment_for_phrase(search_phrase)
 
-        # find a text close to sentiment
-        payload = {'_source': ['sentences.content', 'ProQ:'],
-                   'min_score': quartile, \
-                   'from': 0, 'size': 1000, \
-                   'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
-                                              'fields': ['Full text:']}}}
+        # get relevant documents
+        relevant_documents = self.get_relevant_documents(search_phrase)['hits']['hits']
 
-        return 'default sentence'
+        # find closest document
+        closest_doc = self.get_closest_document(average_sentiment)
 
+        # find sentence with most i's
+        top_sentence = self.sentence_most_i(closest_doc)
 
+        return top_sentence
+
+    def get_closest_document(self, sentiment):
+        closest = {}
+        closest_value = 10000000
+
+        for i in self.curr_relevant_documents['hits']['hits']:
+            current_diff = abs(i['_source']['documentSentiment']['polarity'])
+
+            if current_diff < closest_value:
+                closest = i
+                closest_value = current_diff
+
+        return closest
+
+    def sentence_most_i(self, closest_doc):
+        top_text = ''
+        top_text_i = 0
+
+        for i in closest_doc['_source']['sentences']:
+            curr_i = len(re.findall('I', i['content']))
+            if curr_i > top_text_i:
+                top_text = i['content']
+
+        return top_text
 
     def get_relevant_documents(self, search_phrase):
         """

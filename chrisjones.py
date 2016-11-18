@@ -100,13 +100,6 @@ class ChrisJones:
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:']) for i in r['hits']['hits']]
 
 
-        # all_sentences = []
-        # for h in r:
-        #     for i in h['hits']:
-        #         print i
-        #         # print i['_source']['content']
-        #         all_sentences.append(i['_source']['content'])
-        #         # print(r)
 
         article_title = re.split('title=', r[0][1])[1].replace('+', ' ').replace('&', '')
 

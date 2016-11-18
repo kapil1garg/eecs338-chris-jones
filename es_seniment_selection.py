@@ -53,7 +53,11 @@ class ElasticSentimentSelection(object):
         # find sentence with most i's
         top_sentence = self.sentence_most_i(closest_doc)
 
-        return top_sentence
+        # get article title
+        raw_title = closest_doc['_source']['ProQ:']
+        article_title = re.split('title=', raw_title)[1].replace('+', ' ').replace('&', '')
+
+        return top_sentence, article_title
 
     def get_closest_document(self, sentiment):
         closest = {}

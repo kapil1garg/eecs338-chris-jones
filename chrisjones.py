@@ -71,7 +71,7 @@ class ChrisJones:
         ids = self.get_rel_doc_ids(query)
 
         payload = {
-            "_source": ["sentences.content", "ProQ:"],
+            "_source": ["sentences.content", "Full text:", "ProQ:"],
             "query": {
                 "bool": {
                     "must": [{
@@ -97,14 +97,16 @@ class ChrisJones:
         }
         r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
         r = json.loads(r.text)
-        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:']) for i in r['hits']['hits']]
-
+        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r['hits']['hits']]
 
 
         article_title = re.split('title=', r[0][1])[1].replace('+', ' ').replace('&', '')
+        # sent = r[0][0]['hits'][0]['_source']['content']
+        # article_text = r[0][2].replace(sent, '*{}*'.format(sent))
+        sent_offset = r[0][0]['hits'][0]['_source']['offset']
+        article_text = r[0][2][sent_offset:].splitlines()[0]
 
-
-        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, r[0][0]['hits'][0]['_source']['content'],article_title)
+        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, article_text,article_title)
 
     def route_query(self, query, keywords):
         mod_query = self.query_analyzer.get_framework(query, keywords)

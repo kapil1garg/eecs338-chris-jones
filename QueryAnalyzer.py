@@ -61,7 +61,6 @@ class QueryAnalyzer:
 
   def get_framework(self, query, keywords):
     for t in self.theaters:
-      print t
       query = query.replace(t, 'THEATER')
     for g in self.genres:
       query = query.replace(g, 'GENRE')

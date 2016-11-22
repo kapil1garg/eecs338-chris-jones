@@ -1,3 +1,6 @@
+"""
+This module is the brain of the Chris Jones Bot. It handles queries and constructs responses
+"""
 import requests
 import json
 import elastic
@@ -11,6 +14,9 @@ from es_seniment_selection import ElasticSentimentSelection
 
 
 class ChrisJones:
+    """
+    This is the main class of the Chris Jones Bot
+    """
     def __init__(self):
         self.query_analyzer = QueryAnalyzer()
         self.question_types = [
@@ -35,6 +41,15 @@ class ChrisJones:
         print 'ChrisJones activated'
 
     def get_rel_doc_ids(self, query):
+        """
+        Get the relevant document ids from Elastic Search for a full text query
+
+        args:
+            query (string): A text string to be used on a full-text query
+
+        return:
+            ids (list): A list of document IDs
+        """
         payload = {
             "query": {
                 "query_string": {
@@ -44,6 +59,7 @@ class ChrisJones:
             }
         }
 
+        # TODO - Replace this with our elastic module, if for no other reason than consistency
         r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
         r = json.loads(r.text)
         r = r['hits']['hits']
@@ -52,12 +68,19 @@ class ChrisJones:
 
 
     def respond(self, query):
-        # determine question type
-        # then generate appropriate response
+        """
+        Main wrapper function for Chris Jones bot. Takes a query and returns a response.
+        args:
+            query (string): A text query from the user
 
+        return:
+            response (string): A string (possibly with markdown formatting)
+        """
         annotated_query = self.query_analyzer.get_keywords(query)
         question_type = self.route_query(query, annotated_query)
 
+        # Shoehorning in the Sentiment Queries
+        # TODO - Connect with Full Query Router
         if question_type in [
             'do you like NOUN',
             'do you hate NOUN',
@@ -70,6 +93,7 @@ class ChrisJones:
         # find relevant documents
         ids = self.get_rel_doc_ids(query)
 
+        # Make Fall-back ES Query
         payload = {
             "_source": ["sentences.content", "Full text:", "ProQ:"],
             "query": {
@@ -95,33 +119,43 @@ class ChrisJones:
                 }
             }
         }
+        # TODO - Replace this with our elastic module, if for no other reason than consistency
         r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
         r = json.loads(r.text)
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r['hits']['hits']]
 
+        # TODO - This is hella sloppy, replace all this with something robust and coherent
 
+        # Grab title and strip the URL stuff
+        # TODO - Right now all the chars like %2C etc are just stripped, but replacing them with their actual values would be preferable
         article_title = re.split('title=', r[0][1])[1].replace('+', ' ').replace('&amp;', '')
         article_title = re.sub('%..', '', article_title)
-        # sent = r[0][0]['hits'][0]['_source']['content']
-        # article_text = r[0][2].replace(sent, '*{}*'.format(sent))
 
+        # Grab sentence from query
         sent = r[0][0]['hits'][0]['_source']['content']
+        # Split full text into paragraphs
         article_text = r[0][2].splitlines()
+        # Find the paragraph with the sentence we want
         for p in article_text:
             if re.search(sent, p) != None:
+                # Add markup formatting
                 response_text = p.replace(sent, '*{}*'.format(sent))
                 break
-
-
-
-
-
-
-
-
+        # Construct and Return response to slackbot
         return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
 
     def route_query(self, query, keywords):
+        """
+        Determine the type of question (or the closest) that was asked by the user
+
+        args:
+            query (string): the user's text query
+            keywords (dictionary): the result of QueryAnalyzer.get_keywords()
+
+        return:
+            question_type (string): the type of the question that is closest
+        """
+        # TODO - Change literally all of this... this is an awful system
         mod_query = self.query_analyzer.get_framework(query, keywords)
         print mod_query
         matches = process.extract(mod_query, self.question_types, limit = 1)
@@ -132,7 +166,7 @@ class ChrisJones:
 def main():
     # Work on query routing now
     cj = ChrisJones()
-    query = 'How has the Goodman changed over time'
+    query = 'How has the Goodman Theatre changed over time'
 
     qa = QueryAnalyzer()
     annotated_query = qa.get_keywords(query)

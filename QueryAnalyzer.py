@@ -8,6 +8,9 @@ class QueryAnalyzer:
 
   def __init__(self):
     self.google_nlp = GoogleNlp()
+    self.genres = ['comedy', 'drama', 'tragedy', 'satire', 'farce', 'musicals']
+    with open('data/theaters.txt', 'r') as theater_file:
+      self.theaters = theater_file.read().splitlines()
 
   def get_entities(self, query):
     """
@@ -57,12 +60,22 @@ class QueryAnalyzer:
     return keywords
 
   def get_framework(self, query, keywords):
-    for g in ['comedy', 'drama', 'tragedy', 'satire', 'farce', 'musicals']:
+    for t in self.theaters:
+      print t
+      query = query.replace(t, 'THEATER')
+    for g in self.genres:
       query = query.replace(g, 'GENRE')
-    for n in keywords['keywords']['NOUN']:
-      query = query.replace(n, 'NOUN')
+    # for n in keywords['keywords']['NOUN']:
+    #   query = query.replace(n, 'NOUN')
     return query
+
+
+# class AnnotatedQuery:
+#   def __init__(self, ):
+
 
 if __name__ == '__main__':
   a = QueryAnalyzer()
-  print 'Keywords: ', a.get_keywords('What did you think of the acting in Hamilton?')
+  q = 'How has the Goodman Theatre changed over time?'
+  k = a.get_keywords(q)
+  print a.get_framework(q, k)

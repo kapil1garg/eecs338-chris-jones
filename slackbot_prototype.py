@@ -44,7 +44,7 @@ class SlackBot:
             for output in output_list:
                 if output and 'text' in output and self.bot_tag in output['text']:
                     # return text after the @ mention, whitespace removed
-                    return output['text'].split(self.bot_tag)[1].strip().lower(), output['channel']
+                    return output['text'].split(self.bot_tag)[1].strip(), output['channel']
         return None, None
 
 

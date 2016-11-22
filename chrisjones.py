@@ -100,13 +100,26 @@ class ChrisJones:
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r['hits']['hits']]
 
 
-        article_title = re.split('title=', r[0][1])[1].replace('+', ' ').replace('&', '')
+        article_title = re.split('title=', r[0][1])[1].replace('+', ' ').replace('&amp;', '')
+        article_title = re.sub('%..', '', article_title)
         # sent = r[0][0]['hits'][0]['_source']['content']
         # article_text = r[0][2].replace(sent, '*{}*'.format(sent))
-        sent_offset = r[0][0]['hits'][0]['_source']['offset']
-        article_text = r[0][2][sent_offset:].splitlines()[0]
 
-        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, article_text,article_title)
+        sent = r[0][0]['hits'][0]['_source']['content']
+        article_text = r[0][2].splitlines()
+        for p in article_text:
+            if re.search(sent, p) != None:
+                response_text = p.replace(sent, '*{}*'.format(sent))
+                break
+
+
+
+
+
+
+
+
+        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
 
     def route_query(self, query, keywords):
         mod_query = self.query_analyzer.get_framework(query, keywords)

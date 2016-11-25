@@ -2,6 +2,7 @@ import os
 import time
 from slackclient import SlackClient
 from chrisjones import ChrisJones
+import string
 
 # constants
 READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
@@ -44,7 +45,8 @@ class SlackBot:
             for output in output_list:
                 if output and 'text' in output and self.bot_tag in output['text']:
                     # return text after the @ mention, whitespace removed
-                    return output['text'].split(self.bot_tag)[1].strip(), output['channel']
+                    msg = output['text'].split(self.bot_tag)[1].encode('utf8').translate(None, string.punctuation).strip()
+                    return msg, output['channel']
         return None, None
 
 

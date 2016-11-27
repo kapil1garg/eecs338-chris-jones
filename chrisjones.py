@@ -143,12 +143,20 @@ class ChrisJones:
         return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
 
     def clean_article_title(self, title):
+        """
+        Take an article-source URL and return a cleanly formatted title
+
+        args:
+            title (string): a source URL
+
+        return:
+            article_title (string): A cleanly formatted title to include in response
+        """
         article_title = urllib.unquote(title)
         article_title = re.split('title=', article_title)[1].replace('+', ' ').decode('utf8')
-        print article_title[len(article_title) - 5:len(article_title) - 1]
-        if (article_title[len(article_title) - 5:] in ['&amp', '&amp;']):
-            article_title = article_title[:len(article_title)-5]
-        # article_title = re.sub('%..', '', article_title)
+        title_len = len(article_title)
+        if (article_title[title_len - 5:] in ['&amp', '&amp;']):
+            article_title = article_title[:title_len - 5]
         return article_title
 
 

@@ -127,14 +127,7 @@ class ChrisJones:
 
         # TODO - This is hella sloppy, replace all this with something robust and coherent
 
-        # Grab title and strip the URL stuff
-        # TODO - Right now all the chars like %2C etc are just stripped, but replacing them with their actual values would be preferable
-        article_title = urllib.unquote(r[0][1])
-        article_title = re.split('title=', article_title)[1].replace('+', ' ').decode('utf8')
-        print article_title[len(article_title) - 5:len(article_title) - 1]
-        if (article_title[len(article_title) - 5:] in ['&amp', '&amp;']):
-            article_title = article_title[:len(article_title)-5]
-        # article_title = re.sub('%..', '', article_title)
+        article_title = self.clean_article_title(r[0][1])
 
         # Grab sentence from query
         sent = r[0][0]['hits'][0]['_source']['content']
@@ -149,6 +142,14 @@ class ChrisJones:
         # Construct and Return response to slackbot
         return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
 
+    def clean_article_title(self, title):
+        article_title = urllib.unquote(title)
+        article_title = re.split('title=', article_title)[1].replace('+', ' ').decode('utf8')
+        print article_title[len(article_title) - 5:len(article_title) - 1]
+        if (article_title[len(article_title) - 5:] in ['&amp', '&amp;']):
+            article_title = article_title[:len(article_title)-5]
+        # article_title = re.sub('%..', '', article_title)
+        return article_title
 
 
     def route_query(self, query, keywords):

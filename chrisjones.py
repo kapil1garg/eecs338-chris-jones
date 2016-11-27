@@ -11,6 +11,7 @@ from QueryAnalyzer import QueryAnalyzer
 import random
 from fuzzywuzzy import process
 from es_seniment_selection import ElasticSentimentSelection
+import urllib
 
 
 class ChrisJones:
@@ -128,8 +129,12 @@ class ChrisJones:
 
         # Grab title and strip the URL stuff
         # TODO - Right now all the chars like %2C etc are just stripped, but replacing them with their actual values would be preferable
-        article_title = re.split('title=', r[0][1])[1].replace('+', ' ').replace('&amp;', '')
-        article_title = re.sub('%..', '', article_title)
+        article_title = urllib.unquote(r[0][1])
+        article_title = re.split('title=', article_title)[1].replace('+', ' ').decode('utf8')
+        print article_title[len(article_title) - 5:len(article_title) - 1]
+        if (article_title[len(article_title) - 5:] in ['&amp', '&amp;']):
+            article_title = article_title[:len(article_title)-5]
+        # article_title = re.sub('%..', '', article_title)
 
         # Grab sentence from query
         sent = r[0][0]['hits'][0]['_source']['content']
@@ -143,6 +148,8 @@ class ChrisJones:
                 break
         # Construct and Return response to slackbot
         return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
+
+
 
     def route_query(self, query, keywords):
         """

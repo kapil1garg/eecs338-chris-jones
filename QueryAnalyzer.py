@@ -77,7 +77,6 @@ class AnnotatedQuery:
       q = q.replace(p, 'PERSON')
     for g in self.genres:
       q = q.replace(g, 'GENRE')
-    print q
     for n in self.keywords['keywords']['NOUN']:
       q = q.replace(n, 'NOUN')
     return q

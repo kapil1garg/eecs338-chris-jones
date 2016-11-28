@@ -94,10 +94,12 @@ class DefaultQuery(object):
         # Split full text into paragraphs
         article_text = r[0][2].splitlines()
         # Find the paragraph with the sentence we want
+        response_text = article_text[0] #pick first paragraph as default
         for p in article_text:
-            if re.search(sent, p) != None:
+            if re.search(sent[:10], p) != None:
                 # Add markup formatting
                 response_text = p.replace(sent, '*{}*'.format(sent))
+                print 'found'
                 break
         # Construct and Return response to slackbot
         question_type = 'Default'

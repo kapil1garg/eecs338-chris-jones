@@ -65,7 +65,7 @@ class AnnotatedQuery:
         self.people.append(p)
     for g in genres:
       if re.search(g, query) != None:
-        self.genres.append(p)
+        self.genres.append(g)
 
   def get_framework(self):
     q = self.query
@@ -77,6 +77,7 @@ class AnnotatedQuery:
       q = q.replace(p, 'PERSON')
     for g in self.genres:
       q = q.replace(g, 'GENRE')
+    print q
     for n in self.keywords['keywords']['NOUN']:
       q = q.replace(n, 'NOUN')
     return q

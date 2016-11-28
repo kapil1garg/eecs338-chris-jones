@@ -5,6 +5,7 @@ text to sentiment values in the googles index
 import json
 import re
 import numpy as np
+import nltk
 import elastic
 
 class ElasticSentimentSelection(object):
@@ -13,11 +14,88 @@ class ElasticSentimentSelection(object):
     in another index where sentiment is kept by id match
     """
     def __init__(self, search_index, text_search_field, sentiment_index, sentiment_field):
+        # declare variables for sentiment searcher
         self.search_index = search_index
         self.text_search_field = text_search_field
         self.sentiment_index = sentiment_index
         self.sentiment_field = sentiment_field
         self.relevant_documents = {}
+
+        # create sentiment model for objectivity
+        training_size = 1000
+        subjective_sents = nltk.corpus.subjectivity.sents(categories='subj')[:training_size]
+        objective_sents = nltk.corpus.subjectivity.sents(categories='obj')[:training_size]
+        self.subjective_docs = [(sent, 'subj') for sent in subjective_sents]
+        self.objective_docs = [(sent, 'obj') for sent in objective_sents]
+
+        sentiment_training_data = self.subjective_docs + self.objective_docs
+        self.word_features = []
+        self.classifier = self.train_sentiment_classifier(sentiment_training_data)
+
+    def extract_words(self, text_tuples):
+        """
+        Extraces all words from a training corpus where each entry is a tuple ([tokens], sentiment).
+
+        Inputs:
+            text_tuples (list of tuples): list of tuples in form ([tokens], sentiment)
+
+        Output:
+            (list): all words in training corpus
+        """
+        all_words = []
+        for (words, _) in text_tuples:
+            all_words.extend(words)
+        return all_words
+
+    def create_word_features(self, wordlist):
+        """
+        Returns the unique set of words from a wordlits
+
+        Inputs:
+            wordlist (list): list of string words
+
+        Output:
+            (list): unique words in wordlist
+        """
+        wordlist = nltk.FreqDist(wordlist)
+        self.word_features = wordlist.keys()
+        return self.word_features
+
+    def extract_features(self, document):
+        """
+        Extracts features from a document given a wordlist
+
+        Input:
+            document (list): list of words in document
+
+        Output:
+            (list): features found in document
+        """
+        document_words = set(document)
+        features = {}
+        for word in self.word_features:
+            features['contains(%s)' % word] = (word in document_words)
+        return features
+
+    def train_sentiment_classifier(self, training_data):
+        """
+        Trains a Naive Bayes Classifier on a set of training data
+
+        Inputs:
+            training_data (list of tuples): list of tuples in format ([tokens], sentiment)
+
+        Output:
+            (NaiveBayesClassifier): instance of a trained naive bayes classifier
+        """
+        #  generate list of word features for training data
+        self.create_word_features(self.extract_words(training_data))
+
+        # extract features for training data
+        training_set = nltk.classify.apply_features(self.extract_features, training_data)
+
+        # create and return classifier
+        return nltk.NaiveBayesClassifier.train(training_set)
+
 
     def get_sentiment_for_phrase(self, search_phrase):
         """
@@ -128,7 +206,8 @@ def main():
     """
     Called when module is called from command line
     """
-    ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', 'googles', 'documentSentiment')
+    ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', \
+                                    'googles', 'documentSentiment')
     print ess.get_best_sentence('Aladdin')
 
 if __name__ == '__main__':

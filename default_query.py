@@ -32,7 +32,6 @@ class DefaultQuery(object):
             }
         }
 
-        # TODO - Replace this with our elastic module, if for no other reason than consistency
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         ids = [i['_id'] for i in r]
         return ids
@@ -83,7 +82,6 @@ class DefaultQuery(object):
                 }
             }
         }
-        # TODO - Replace this with our elastic module, if for no other reason than consistency
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
@@ -102,7 +100,7 @@ class DefaultQuery(object):
                 response_text = p.replace(sent, '*{}*'.format(sent))
                 break
         # Construct and Return response to slackbot
-        question_type = 'asdf'
+        question_type = 'Default'
         return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
 
 

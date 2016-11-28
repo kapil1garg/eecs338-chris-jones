@@ -24,7 +24,7 @@ class QueryAnalyzer:
     args:
       query (string): the query you wish to annotate
     """
-    return AnnotatedQuery(query, self.shows, self.theaters, self.people)
+    return AnnotatedQuery(query, self.shows, self.theaters, self.people, self.genres)
 
 
 
@@ -37,9 +37,10 @@ class AnnotatedQuery:
     shows (list): the list of shows (strings)
     theaters (list): the list of theaters (strings)
     people (list): the list of people (strings)
+    genres (list): the list of genres (strings)
 
   """
-  def __init__(self, query, shows, theaters, people):
+  def __init__(self, query, shows, theaters, people, genres):
     self.api_client = GoogleNlp()
     self.api_results = self.api_client.annotate_text(query)
     self.keywords = {'keywords': {'NOUN': [], 'VERB': []}, 'edges': {'ROOT': [], 'NSUBJ': [], 'POBJ': [], 'ATTR': []}}
@@ -51,6 +52,7 @@ class AnnotatedQuery:
     self.shows = []
     self.theaters = []
     self.people = []
+    self.genres = []
     for s in shows:
       if re.search(s, query) != None:
         self.shows.append(s)
@@ -60,6 +62,9 @@ class AnnotatedQuery:
     for p in people:
       if re.search(p, query) != None:
         self.people.append(p)
+    for g in genres:
+      if re.search(g, query) != None:
+        self.genres.append(p)
 
 
 if __name__ == '__main__':

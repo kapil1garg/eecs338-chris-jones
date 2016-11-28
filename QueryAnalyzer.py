@@ -17,51 +17,15 @@ class QueryAnalyzer:
     with open('data/shows.txt', 'r') as shows_file:
       self.shows = shows_file.read().splitlines()
 
-  def get_entities(self, query):
-    """
-      Finds the entites of the input query
-
-      input:
-        query (string): The query to be anylyzed
-
-      return:
-        entites (list of strings): List of entities in query
-    """
-    return_blob = self.google_nlp.analyze_entities(query)
-    entities = []
-    for entity in return_blob['entities']:
-      entities.append(entity['name'])
-    return entities
-
-  def get_subject(self, query):
-    """
-      Finds the noun subject of the input query
-
-      input:
-        query (string): The query to be anylyzed
-
-      return:
-        (string) || None: Noun subject of query
-    """
-    return_blob = self.google_nlp.analyze_syntax(query)
-    for token in return_blob['tokens']:
-      if token['dependencyEdge']['label'] == "NSUBJ":
-        return token['text']['content']
-
-  def get_keywords(self, query):
-    return_blob = self.google_nlp.analyze_syntax(query)
-
-  def get_framework(self, query, keywords):
-    for t in self.theaters:
-      query = query.replace(t, 'THEATER')
-    for g in self.genres:
-      query = query.replace(g, 'GENRE')
-    # for n in keywords['keywords']['NOUN']:
-    #   query = query.replace(n, 'NOUN')
-    return query
-
   def annotate(self, query):
+    """
+    Return an AnnotatedQuery object for the given query
+
+    args:
+      query (string): the query you wish to annotate
+    """
     return AnnotatedQuery(query, self.shows, self.theaters, self.people)
+
 
 
 class AnnotatedQuery:

@@ -42,6 +42,7 @@ class AnnotatedQuery:
   """
   def __init__(self, query, shows, theaters, people, genres):
     self.api_client = GoogleNlp()
+    self.query = query
     self.api_results = self.api_client.annotate_text(query)
     self.keywords = {'keywords': {'NOUN': [], 'VERB': []}, 'edges': {'ROOT': [], 'NSUBJ': [], 'POBJ': [], 'ATTR': []}}
     for token in self.api_results['tokens']:
@@ -65,6 +66,21 @@ class AnnotatedQuery:
     for g in genres:
       if re.search(g, query) != None:
         self.genres.append(p)
+
+  def get_framework(self):
+    q = self.query
+    for s in self.shows:
+      q = q.replace(s, 'SHOW')
+    for t in self.theaters:
+      q = q.replace(t, 'THEATER')
+    for p in self.people:
+      q = q.replace(p, 'PERSON')
+    for g in self.genres:
+      q = q.replace(g, 'GENRE')
+    for n in self.keywords['keywords']['NOUN']:
+      q = q.replace(n, 'NOUN')
+    return q
+
 
 
 if __name__ == '__main__':

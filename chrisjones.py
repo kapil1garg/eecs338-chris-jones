@@ -91,7 +91,7 @@ class ChrisJones:
 
 
 
-def main():
+if __name__ == '__main__':
     # Work on query routing now
     cj = ChrisJones()
     query = 'How has the Goodman Theatre changed over time'
@@ -100,5 +100,3 @@ def main():
     annotated_query = qa.get_keywords(query)
     print cj.route_query(query, annotated_query)
 
-if __name__ == '__main__':
-    main()

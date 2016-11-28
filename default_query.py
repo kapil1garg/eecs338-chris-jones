@@ -103,7 +103,7 @@ class DefaultQuery(object):
                 break
         # Construct and Return response to slackbot
         question_type = 'Default'
-        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
+        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text.encode('utf8'), article_title)
 
 
 

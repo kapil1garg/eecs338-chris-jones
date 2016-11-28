@@ -294,7 +294,7 @@ Azusa Productions
 Lifeline Theatre
 Babes with Blades
 Backstage Theater Company
-Bailiwick*
+Bailiwick
 Baird
 Banta, Henderson, and Salzenstein
 Barrel of Monkeys
@@ -304,7 +304,7 @@ Beacon Street Gallery and Theatre
 Beverly Theater Guild
 Big Game Theater
 Big Noise Theatre Company
-Black Ensemble Theater*
+Black Ensemble Theater
 Black Orchid 
 Blackbird Theatre
 Blackstone(see Merle Reskin)
@@ -312,7 +312,7 @@ Blind Parrot
 Blue Man Group
 Blue Rider
 Blueprint Theatre Group
-Body Politic*
+Body Politic
 Bohemian Theatre Ensemble
 Bowen Park Theatre
 Boxer Rebellion Theatre
@@ -331,7 +331,7 @@ Caesar's Forum
 Cafe Voltaire
 Callner
 Camenae Ensemble
-Candlelight Dinner Playhouse*
+Candlelight Dinner Playhouse
 Cardiff Giant
 Cave 76
 Center Aisle
@@ -357,13 +357,13 @@ Chicago Dramatists
 Chicago Improv Festival
 Chicago Jewish Theater
 Chicago Little Theatre
-Chicago Medieval Players*
+Chicago Medieval Players
 Chicago Musical College
 Chicago New Plays
 Chicago Opera House
 Chicago Premiere Society
 Chicago Repertory Group
-Chicago Shakespeare Theatre*
+Chicago Shakespeare Theatre
 Chicago Stage Guild
 Chicago Theater Company (original name: X-Bag)
 Chicago Theatre
@@ -387,7 +387,7 @@ Colonial Theatre
 Columbia College Theater Department
 Columbia Theatre
 ComedySportz
-Commons Theatre*
+Commons Theatre
 Compass
 Compass Project
 Congo Square Theatre
@@ -405,7 +405,6 @@ White Horse Theatre Company
 Dearborn Theater
 Defiant Theater
 Diamante Productions
-Dinglefest Theater*(as part of Theatre Building archives)
 Dog and Pony Theatre Company
 Dominican University Performing Arts Center
 Drama Group (community)
@@ -424,7 +423,7 @@ Emerald City Theatre Company
 EP Theater
 Equity Library Theatre Chicago
 Erlanger
-eta Creative Arts*
+eta Creative Arts
 Evanston Theater Company (became Northlight Repertory)
 Factory Theatre
 Famous Door
@@ -432,16 +431,16 @@ Federal Negro Theatre
 Federal Theatre Project
 First Folio Theatre
 Ford Center for the Performing Arts
-Forum Theatre*
+Forum Theatre
 Free Shakespeare Company
-Free Street Theatre*
+Free Street Theatre
 Free Theatre
 About Face
 Garrick Theatre (called the Schiller until Shubert Ownership)
 Gift Theatre Company
 Glickman's Palace Theatre
-Godzilla Rainbow Troupe*
-Goodman Theatre*
+Godzilla Rainbow Troupe
+Goodman Theatre
 Grand Opera House
 Greasy Joan & Company
 Great Northern Theatre
@@ -456,7 +455,6 @@ Harris Theatre
 Haverly's Theatre
 Hell in a Handbag Productions
 Hemmens Cultural Center
-Henry Booth Settlement House (branch of Hull House Theatre
 Hooley's (renamed Powers at unspecified date)
 House Theatre
 Hubbard Street Dance
@@ -471,7 +469,7 @@ Immediate Theatre
 Improv Kitchen
 Infamous Commonwealth Theatre
 InFusion Theatre Company
-International Theatre Festival of Chicago*
+International Theatre Festival of Chicago
 International Theatre of Chicago
 Interplay
 Iroquois Theatre
@@ -481,7 +479,7 @@ Journeymen Theater Company
 K. O. Improv LLC (Improvidate)
 Keyhole Theatre Companys
 Kingston Mines
-Kuumba Workshop*
+Kuumba Workshop
 LaSalle Bank Theatre
 Last Stage Theatre
 Latino Theatre Festival
@@ -496,7 +494,7 @@ Lookingglass Theatre
 Loyola University
 Lukaba Productions/Cupid Players
 Lyric Theatre
-Magic Circle Theatre*
+Magic Circle Theatre
 Majestic (Shubert, 1945;LaSalle Bank, 2006)
 Martin
 Mary-Arrchie Theatre Company
@@ -522,7 +520,6 @@ New Adelphi (see Haverly's)
 New Leaf Theatre
 New Theatre
 New Theatre Company
-New Tuners*(as part of Theatre Building archives)
 New World Repertory Theater
 Next Theatre
 No Shame Theatre
@@ -531,7 +528,7 @@ North Light Repertory (became Northlight Theatre)
 North Shore Center for Performing Arts
 North Shore Unitarian Church
 Northbrook Theatre
-Northlight Theatre*
+Northlight Theatre
 Northwestern University
 Noyes Cultural Arts Center
 New World Repertory Theater
@@ -539,17 +536,16 @@ Oak Park Festival Theatre
 One Theatre Company
 Open Door Repertory Company
 Oracle Productions
-Organic Theater*
+Organic Theater
 Oriental Theater
 Page Auditorium
 Parkway Community Center (branch of Hull House theater)
-Pegasus Players*
+Pegasus Players
 Pekin
 Penthouse Players
-Performance Community*(as part of Theatre Building archives)
 pHProductions
 Piccolo Theatre
-Piven Theatre Workshop*
+Piven Theatre Workshop
 Plasticene Physical Theater
 Players' Ring Theatre West
 Playwrights Ensemble
@@ -584,7 +580,6 @@ Serendipity Theatre Company
 Shakespeare Repertory
 Shapeshifters Theatre Company
 Shattered Globe Theatre
-Sheridan Playhouse (branch of Hull House Theater
 Shubert (see Majestic)
 Side Project, The
 Silkroad Theatre Project
@@ -592,14 +587,14 @@ Skyloft Company
 Smoke and Mirror Productions
 Speaking Ring Theatre
 Sprung
-St. Nicholas*
+St. Nicholas
 Stage Guild
-Stage Left Theater*
+Stage Left Theater
 Steep Theatre Company
-Steppenwolf*
+Steppenwolf
 Stir-Friday Night
 Stockyards Theatre Project
-Stormfield Theater*
+Stormfield Theater
 Story Theater
 Storytellers Theatre
 Strawdog Theatre Company
@@ -616,7 +611,7 @@ Terrapin Theater
 Thalia Hall
 Theater Wit
 Theatre at the Center
-Theatre Building*
+Theatre Building
 Theatre Conservatory, Chicago College of Performing Arts, Roosevelt University
 Theatre O Th Absurd
 Theatre School of DePaul University
@@ -637,7 +632,7 @@ UIC Theatre
 Uma Productions
 Urbantheaterco
 Viaduct Theater
-Victory Gardens*
+Victory Gardens
 Village Players
 Vitalist Theatre
 Vittum Theater
@@ -646,7 +641,7 @@ We'll Show Them Theater
 Weisenfreunds Pavilion
 White Horse Theatre Company
 Winnetka Theatre Company
-Wisdom Bridge*
+Wisdom Bridge
 WNEP Theater Foundation
 Woods' Museum
 Woods' Theater

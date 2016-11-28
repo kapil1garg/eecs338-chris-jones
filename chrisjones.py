@@ -11,7 +11,7 @@ from QueryAnalyzer import QueryAnalyzer
 import random
 from fuzzywuzzy import process
 from es_seniment_selection import ElasticSentimentSelection
-import urllib
+from default_query import DefaultQuery
 
 
 class ChrisJones:
@@ -20,52 +20,8 @@ class ChrisJones:
     """
     def __init__(self):
         self.query_analyzer = QueryAnalyzer()
-        self.question_types = [
-            'what do you think is good NOUN',
-            'I want to got to THEATER. Do you think it is good',
-            'what did you think of SHOW',
-            'what do you think of NOUN in SHOW',
-            'what do you think of ACTOR',
-            'do you think ACTOR is a good NOUN',
-            'what is the best performance right now',
-            'what was your favorite show at THEATER',
-            'what was ACTOR best performance',
-            'how do you like your GENRE',
-            'what embodies the essence of chicago theater',
-            'how is chicago different from New York?',
-            'How has THEATER changed over time',
-            'do you like NOUN',
-            'do you hate NOUN',
-            'do you love NOUN',
-            'do you dislike NOUN'
-        ]
         print 'ChrisJones activated'
 
-    def get_rel_doc_ids(self, query):
-        """
-        Get the relevant document ids from Elastic Search for a full text query
-
-        args:
-            query (string): A text string to be used on a full-text query
-
-        return:
-            ids (list): A list of document IDs
-        """
-        payload = {
-            "query": {
-                "query_string": {
-                    "query": query.encode('utf-8'),
-                    "fields": ["Full text:"]
-                }
-            }
-        }
-
-        # TODO - Replace this with our elastic module, if for no other reason than consistency
-        r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
-        r = json.loads(r.text)
-        r = r['hits']['hits']
-        ids = [i['_id'] for i in r]
-        return ids
 
 
     def respond(self, query):
@@ -77,109 +33,98 @@ class ChrisJones:
         return:
             response (string): A string (possibly with markdown formatting)
         """
-        annotated_query = self.query_analyzer.get_keywords(query)
-        question_type = self.route_query(query, annotated_query)
+        # Get query annotations
+        annotated_query = self.query_analyzer.annotate(query)
+        print annotated_query.get_framework()
 
-        # Shoehorning in the Sentiment Queries
-        # TODO - Connect with Full Query Router
-        if question_type in [
-            'do you like NOUN',
-            'do you hate NOUN',
-            'do you love NOUN',
-            'do you dislike NOUN']:
+        # TODO - change uses of `query` to annotated_query.query to cut back on the number of arguments we have to pass around
+
+        # Route to correct query handler
+        if (query == 'how do you like your comedy'):
+            return DefaultQuery().generate_response(query, annotated_query)
+
+        elif len(annotated_query.genres) > 0:
+            # Genre query handler
+            ### 'how do you like your GENRE',
+            # Write better handler when we get more genre questions
+            print 'Genre Query'
+            return DefaultQuery().generate_response(query, annotated_query)
+
+        elif len(annotated_query.shows) > 0:
+            # Show related question types
+            print 'Show Query'
+            router = {
+                'what did you think of SHOW': lambda x,y: DefaultQuery().generate_response(x, y),
+                'what do you think is the best SHOW right now': lambda x,y: DefaultQuery().generate_response(x, y),
+                'what do you think of NOUN in SHOW': lambda x,y: DefaultQuery().generate_response(x, y)
+            }
+            # Find the closest question type and use it to access handler
+            return self.call_handler(router, query, annotated_query)
+
+        elif len(annotated_query.theaters) > 0:
+            # Theater-related questions
+            print 'Theater Query'
+            router = {
+            'what was your favorite show at THEATER': lambda x,y: DefaultQuery().generate_response(x, y),
+            'How has THEATER changed over time': lambda x,y: DefaultQuery().generate_response(x, y),
+            'I want to go to THEATER. Do you think it is good': lambda x,y: DefaultQuery().generate_response(x, y)
+            }
+            # Find the closest question type and use it to access handler
+            return self.call_handler(router, query, annotated_query)
+
+        elif len(annotated_query.people) > 0:
+            # People-related questions
+            print 'People Query'
+            router = {
+            'what was PERSON best performance': lambda x,y: DefaultQuery().generate_response(x, y),
+            'do you think PERSON is a good NOUN': lambda x,y: DefaultQuery().generate_response(x, y),
+            'what do you think of PERSON': lambda x,y: DefaultQuery().generate_response(x, y)
+            }
+            # Find the closest question type and use it to access handler
+            return self.call_handler(router, query, annotated_query)
+
+        elif any(re.search(i, query) != None for i in ['like', 'dislike', 'love', 'hate']):
+            # TODO - Determine a more satisfying way to kick off this handler, perhaps it should just be more specific
+            # Sentiment Aggregation query handler
+            print 'Sentiment Query'
             ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', 'googles', 'documentSentiment')
             best_response = ess.get_best_sentence(query)
+            question_type = 'Sentiment Aggregation'
             return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, best_response[0], best_response[1])
 
-        # find relevant documents
-        ids = self.get_rel_doc_ids(query)
-
-        # Make Fall-back ES Query
-        payload = {
-            "_source": ["sentences.content", "Full text:", "ProQ:"],
-            "query": {
-                "bool": {
-                    "must": [{
-                        "ids": {
-                            "values": ids
-                        }},
-                             {"nested" : {
-                                 "path" : "sentences",
-                                 "query" : {
-                                     "bool": {
-                                         "must": [
-                                             {"match": {
-                                                 "sentences.content": annotated_query['keywords']['NOUN'][0]
-                                             }
-                                             }
-                                         ]
-                                     }
-                                 },
-                                 "inner_hits": {}
-                             }}]
-                }
+        elif any(re.search(i, query) != None for i in ['Chicago', 'chicago', 'New York', 'NYC']):
+            # Location and/or Chicago-based questions
+            print 'Location/Chicago Query'
+            router = {
+                'what embodies the essence of chicago theater': lambda x,y: DefaultQuery().generate_response(x, y),
+                'how is chicago different from New York?': lambda x,y: DefaultQuery().generate_response(x, y)
             }
-        }
-        # TODO - Replace this with our elastic module, if for no other reason than consistency
-        r = requests.post(ES_URL + '/flattened-articles/_search', data = json.dumps(payload))
-        r = json.loads(r.text)
-        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r['hits']['hits']]
+            # Find the closest question type and use it to access handler
+            return self.call_handler(router, query, annotated_query)
 
-        # TODO - This is hella sloppy, replace all this with something robust and coherent
+        else:
+            print 'Default Query'
+            ### What do you think is good NOUN
+            return DefaultQuery().generate_response(query, annotated_query)
 
-        article_title = self.clean_article_title(r[0][1])
 
-        # Grab sentence from query
-        sent = r[0][0]['hits'][0]['_source']['content']
-        # Split full text into paragraphs
-        article_text = r[0][2].splitlines()
-        # Find the paragraph with the sentence we want
-        for p in article_text:
-            if re.search(sent, p) != None:
-                # Add markup formatting
-                response_text = p.replace(sent, '*{}*'.format(sent))
-                break
-        # Construct and Return response to slackbot
-        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text,article_title)
-
-    def clean_article_title(self, title):
+    def call_handler(self, router, query, annotated_query):
         """
-        Take an article-source URL and return a cleanly formatted title
+        Helper function to use with query router dictionary switch statements
 
         args:
-            title (string): a source URL
-
+            router (dictionary): a dictionary with question frameworks as keys and implementations as values
+            query (string): a string with the user's query
+            annotated_query (AnnotatedQuery): an AnnotatedQuery corresponding to the user's query
         return:
-            article_title (string): A cleanly formatted title to include in response
+            response (string): a response string, perhaps with markdown formatting
         """
-        article_title = urllib.unquote(title)
-        article_title = re.split('title=', article_title)[1].replace('+', ' ').decode('utf8')
-        title_len = len(article_title)
-        if (article_title[title_len - 5:] in ['&amp', '&amp;']):
-            article_title = article_title[:title_len - 5]
-        return article_title
-
-
-    def route_query(self, query, keywords):
-        """
-        Determine the type of question (or the closest) that was asked by the user
-
-        args:
-            query (string): the user's text query
-            keywords (dictionary): the result of QueryAnalyzer.get_keywords()
-
-        return:
-            question_type (string): the type of the question that is closest
-        """
-        # TODO - Change literally all of this... this is an awful system
-        mod_query = self.query_analyzer.get_framework(query, keywords)
-        print mod_query
-        matches = process.extract(mod_query, self.question_types, limit = 1)
-        return matches[0][0]
+        question_type = process.extractOne(annotated_query.get_framework(), router.keys())[0]
+        return router[question_type](query, annotated_query)
 
 
 
-def main():
+if __name__ == '__main__':
     # Work on query routing now
     cj = ChrisJones()
     query = 'How has the Goodman Theatre changed over time'
@@ -188,5 +133,3 @@ def main():
     annotated_query = qa.get_keywords(query)
     print cj.route_query(query, annotated_query)
 
-if __name__ == '__main__':
-    main()

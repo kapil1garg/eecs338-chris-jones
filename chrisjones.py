@@ -77,8 +77,8 @@ class ChrisJones:
         return:
             response (string): A string (possibly with markdown formatting)
         """
-        annotated_query = self.query_analyzer.get_keywords(query)
-        question_type = self.route_query(query, annotated_query)
+        annotated_query = self.query_analyzer.annotate(query)
+        question_type = self.route_query(query, annotated_query.keywords)
 
         # Shoehorning in the Sentiment Queries
         # TODO - Connect with Full Query Router
@@ -109,7 +109,7 @@ class ChrisJones:
                                      "bool": {
                                          "must": [
                                              {"match": {
-                                                 "sentences.content": annotated_query['keywords']['NOUN'][0]
+                                                 "sentences.content": annotated_query.keywords['keywords']['NOUN'][0]
                                              }
                                              }
                                          ]

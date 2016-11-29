@@ -16,13 +16,8 @@ class ElasticSentimentSelection(object):
     Conducts a search on an index and then finds a matching document
     in another index where sentiment is kept by id match
     """
-    def __init__(self, search_index, text_search_field, sentiment_index, sentiment_field, \
-                 rebuild=False):
+    def __init__(self, rebuild=False):
         # declare variables for sentiment searcher
-        self.search_index = search_index
-        self.text_search_field = text_search_field
-        self.sentiment_index = sentiment_index
-        self.sentiment_field = sentiment_field
         self.relevant_documents = {}
 
         # create sentiment model for objectivity
@@ -237,7 +232,7 @@ class ElasticSentimentSelection(object):
             (dict): dictionary of fetched documents
         """
         #  get all scores for top 100 documents
-        index = self.search_index + '/_search'
+        index = 'flattened-articles/_search'
         score_payload = {'from': 0, 'size': 500, \
                          'fields': '_score', \
                          'query': {'query_string': { \
@@ -268,8 +263,7 @@ def main():
     """
     Called when module is called from command line
     """
-    ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', \
-                                    'googles', 'documentSentiment')
+    ess = ElasticSentimentSelection()
     print ess.get_best_sentence('Aladdin')
     print ess.get_best_sentence('Romeo and Juliet')
     print ess.get_best_sentence('Hamlet')

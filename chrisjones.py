@@ -87,7 +87,7 @@ class ChrisJones:
             # TODO - Determine a more satisfying way to kick off this handler, perhaps it should just be more specific
             # Sentiment Aggregation query handler
             print 'Sentiment Query'
-            ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', 'googles', 'documentSentiment')
+            ess = ElasticSentimentSelection()
             best_response = ess.get_best_sentence(query)
             question_type = 'Sentiment Aggregation'
             return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, best_response[0], best_response[1])

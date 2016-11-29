@@ -12,6 +12,7 @@ import random
 from fuzzywuzzy import process
 from es_sentiment_selection import ElasticSentimentSelection
 from default_query import DefaultQuery
+from default_query import PersonThoughtsQuery
 
 
 class ChrisJones:
@@ -78,7 +79,7 @@ class ChrisJones:
             router = {
             'what was PERSON best performance': lambda x,y: DefaultQuery().generate_response(x, y),
             'do you think PERSON is a good NOUN': lambda x,y: DefaultQuery().generate_response(x, y),
-            'what do you think of PERSON': lambda x,y: DefaultQuery().generate_response(x, y)
+            'what do you think of PERSON': lambda x,y: PersonThoughtsQuery().generate_response(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)

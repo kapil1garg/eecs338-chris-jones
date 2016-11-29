@@ -4,6 +4,9 @@ text to sentiment values in the googles index
 """
 import json
 import re
+import pickle
+import math
+import os
 import numpy as np
 import nltk
 import elastic
@@ -13,7 +16,8 @@ class ElasticSentimentSelection(object):
     Conducts a search on an index and then finds a matching document
     in another index where sentiment is kept by id match
     """
-    def __init__(self, search_index, text_search_field, sentiment_index, sentiment_field):
+    def __init__(self, search_index, text_search_field, sentiment_index, sentiment_field, \
+                 rebuild=False):
         # declare variables for sentiment searcher
         self.search_index = search_index
         self.text_search_field = text_search_field
@@ -22,15 +26,40 @@ class ElasticSentimentSelection(object):
         self.relevant_documents = {}
 
         # create sentiment model for objectivity
-        training_size = 1000
-        subjective_sents = nltk.corpus.subjectivity.sents(categories='subj')[:training_size]
-        objective_sents = nltk.corpus.subjectivity.sents(categories='obj')[:training_size]
-        self.subjective_docs = [(sent, 'subj') for sent in subjective_sents]
-        self.objective_docs = [(sent, 'obj') for sent in objective_sents]
-
-        sentiment_training_data = self.subjective_docs + self.objective_docs
         self.word_features = []
-        self.classifier = self.train_sentiment_classifier(sentiment_training_data)
+        self.classifier = None
+
+        if os.path.exists('models/sentiment/label_probdist.p') and \
+           os.path.exists('models/sentiment/feature_probdist.p') and not rebuild:
+            print 'loading sentiment model'
+
+            # load in model files
+            with open('models/sentiment/label_probdist.p', 'rb') as label_probdist_file:
+                label_probdist = pickle.load(label_probdist_file)
+            with open('models/sentiment/feature_probdist.p', 'rb') as feature_probdist_file:
+                feature_probdist = pickle.load(feature_probdist_file)
+
+            # instantiate classifier
+            self.classifier = nltk.NaiveBayesClassifier(label_probdist, feature_probdist)
+        else:
+            print 'generating sentiment model'
+
+            # get training data
+            subjective_sents = nltk.corpus.subjectivity.sents(categories='subj')
+            objective_sents = nltk.corpus.subjectivity.sents(categories='obj')
+
+            subjective_docs = [(sent, 'subj') for sent in subjective_sents]
+            objective_docs = [(sent, 'obj') for sent in objective_sents]
+
+            # train model
+            sentiment_training_data = subjective_docs + objective_docs
+            self.classifier = self.train_sentiment_classifier(sentiment_training_data)
+
+            # save out model so it will not need to be regenerated
+            with open('models/sentiment/label_probdist.p', 'wb') as label_probdist_file:
+                pickle.dump(self.classifier._label_probdist, label_probdist_file)
+            with open('models/sentiment/feature_probdist.p', 'wb') as feature_probdist_file:
+                pickle.dump(self.classifier._feature_probdist, feature_probdist_file)
 
     def extract_words(self, text_tuples):
         """
@@ -97,7 +126,7 @@ class ElasticSentimentSelection(object):
         return nltk.NaiveBayesClassifier.train(training_set)
 
 
-    def get_sentiment_for_phrase(self, search_phrase):
+    def get_avg_sentiment(self, search_phrase):
         """
         Computes average sentiment from all relevant documents returned from search.
 
@@ -115,20 +144,27 @@ class ElasticSentimentSelection(object):
         for i in self.relevant_documents['hits']['hits']:
             average_polarity += float(i['_source']['documentSentiment']['polarity'])
 
-        return average_polarity / (len(self.relevant_documents.keys()) + 0.0000001)
+        return average_polarity / (len(self.relevant_documents['hits']['hits']) + 0.0000001)
 
     def get_best_sentence(self, search_phrase):
-        # get sentiment for phrase
-        average_sentiment = self.get_sentiment_for_phrase(search_phrase)
+        """
+        Return best sentence for search phrase
 
-        # get relevant documents
-        relevant_documents = self.relevant_documents['hits']['hits']
+        Inputs:
+            search_phrase (string): string phrase to search for in elastic search
+
+        Outputs:
+            (string): top sentence found in best doc
+            (article_title): title of article for context
+        """
+        # get sentiment for phrase
+        average_sentiment = self.get_avg_sentiment(search_phrase)
 
         # find closest document
         closest_doc = self.get_closest_document(average_sentiment)
 
-        # find sentence with most i's
-        top_sentence = self.sentence_most_i(closest_doc)
+        # find the best (most subjective) sentence
+        top_sentence = self.get_most_subjective_sentence(closest_doc)
 
         # get article title
         raw_title = closest_doc['_source']['ProQ:']
@@ -137,11 +173,21 @@ class ElasticSentimentSelection(object):
         return top_sentence, article_title
 
     def get_closest_document(self, sentiment):
+        """
+        Returns closest document by sentiment to average sentiment.
+
+        Inputs:
+            sentiment (float): average sentiment of all relevant documents
+
+        Outputs:
+            (dictionary): closest document
+        """
         closest = {}
         closest_value = 10000000
 
         for i in self.relevant_documents['hits']['hits']:
-            current_diff = abs(i['_source']['documentSentiment']['polarity'])
+            current_diff = math.sqrt(math.pow(i['_source']['documentSentiment']['polarity'] - \
+                                              sentiment, 2))
 
             if current_diff < closest_value:
                 closest = i
@@ -149,16 +195,29 @@ class ElasticSentimentSelection(object):
 
         return closest
 
-    def sentence_most_i(self, closest_doc):
-        top_text = ''
-        top_text_i = 0
+    def get_most_subjective_sentence(self, closest_doc):
+        """
+        Compue subjectivity for each sentence and pick one that is most
+
+        Inputs:
+            closest_doc (dictionary): dictionary fetched from ES
+
+        Outputs;
+            (string): top sentence by subjectivity
+        """
+        top_sentence = ''
+        top_sentence_subjectivity = 0
 
         for i in closest_doc['_source']['sentences']:
-            curr_i = len(re.findall('I', i['content']))
-            if curr_i > top_text_i:
-                top_text = i['content']
+            curr_sentence_tokens = i['content'].split()
+            curr_sentence_features = self.extract_features(curr_sentence_tokens)
+            curr_subjectivity = self.classifier.prob_classify(curr_sentence_features).prob('subj')
 
-        return top_text
+            if curr_subjectivity > top_sentence_subjectivity:
+                top_sentence_subjectivity = curr_subjectivity
+                top_sentence = i['content']
+
+        return top_sentence
 
     def get_relevant_documents(self, search_phrase):
         """
@@ -172,9 +231,9 @@ class ElasticSentimentSelection(object):
         output:
             (dict): dictionary of fetched documents
         """
-        #  get all scores for top 10K documents
+        #  get all scores for top 100 documents
         index = self.search_index + '/_search'
-        score_payload = {'from': 0, 'size': 100, \
+        score_payload = {'from': 0, 'size': 500, \
                          'fields': '_score', \
                          'query': {'query_string': { \
                                    'query': search_phrase.encode('utf-8'), \
@@ -188,13 +247,12 @@ class ElasticSentimentSelection(object):
             if float_score > 0:
                 scores.append(float_score)
 
-        median_score = np.median(scores)
-        quartile = np.percentile(scores, 75)
+        quartile = np.percentile(scores, 50)
 
-        # get responses where min_score >= median_score
+        # get responses where min_score >= quartile
         payload = {'_source': ['ProQ:', 'sentences', 'documentSentiment'],
                    'min_score': quartile, \
-                   'from': 0, 'size': 100, \
+                   'from': 0, 'size': 500, \
                    'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
                                               'fields': ['Full text:']}}}
 
@@ -209,6 +267,8 @@ def main():
     ess = ElasticSentimentSelection('flattened-articles', 'Full Text:', \
                                     'googles', 'documentSentiment')
     print ess.get_best_sentence('Aladdin')
+    print ess.get_best_sentence('Romeo and Juliet')
+    print ess.get_best_sentence('Hamlet')
 
 if __name__ == '__main__':
     main()

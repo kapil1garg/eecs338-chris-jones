@@ -10,7 +10,7 @@ import re
 from QueryAnalyzer import QueryAnalyzer
 import random
 from fuzzywuzzy import process
-from es_sentiment_selection.py import ElasticSentimentSelection
+from es_sentiment_selection import ElasticSentimentSelection
 from default_query import DefaultQuery
 
 

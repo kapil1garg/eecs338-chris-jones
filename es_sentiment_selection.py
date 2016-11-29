@@ -247,11 +247,11 @@ class ElasticSentimentSelection(object):
             if float_score > 0:
                 scores.append(float_score)
 
-        quartile = np.percentile(scores, 50)
+        quantile = np.percentile(scores, 50)
 
-        # get responses where min_score >= quartile
+        # get responses where min_score >= quantile
         payload = {'_source': ['ProQ:', 'sentences', 'documentSentiment'],
-                   'min_score': quartile, \
+                   'min_score': quantile, \
                    'from': 0, 'size': 500, \
                    'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
                                               'fields': ['Full text:']}}}

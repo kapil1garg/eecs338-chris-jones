@@ -74,6 +74,7 @@ class ElasticSentimentSelection(object):
         all_words = []
         for (words, _) in text_tuples:
             all_words.extend(words)
+
         return all_words
 
     def create_word_features(self, wordlist):
@@ -88,6 +89,7 @@ class ElasticSentimentSelection(object):
         """
         wordlist = nltk.FreqDist(wordlist)
         self.word_features = wordlist.keys()
+
         return self.word_features
 
     def extract_features(self, document):
@@ -102,8 +104,10 @@ class ElasticSentimentSelection(object):
         """
         document_words = set(document)
         features = {}
+
         for word in self.word_features:
             features['contains(%s)' % word] = (word in document_words)
+
         return features
 
     def train_sentiment_classifier(self, training_data):
@@ -124,7 +128,6 @@ class ElasticSentimentSelection(object):
 
         # create and return classifier
         return nltk.NaiveBayesClassifier.train(training_set)
-
 
     def get_avg_sentiment(self, search_phrase):
         """
@@ -182,9 +185,11 @@ class ElasticSentimentSelection(object):
         Outputs:
             (dictionary): closest document
         """
+        # variables to hold closest document
         closest = {}
         closest_value = 10000000
 
+        # find closest difference
         for i in self.relevant_documents['hits']['hits']:
             current_diff = math.sqrt(math.pow(i['_source']['documentSentiment']['polarity'] - \
                                               sentiment, 2))
@@ -214,8 +219,8 @@ class ElasticSentimentSelection(object):
             curr_subjectivity = self.classifier.prob_classify(curr_sentence_features).prob('subj')
 
             if curr_subjectivity > top_sentence_subjectivity:
-                top_sentence_subjectivity = curr_subjectivity
                 top_sentence = i['content']
+                top_sentence_subjectivity = curr_subjectivity
 
         return top_sentence
 
@@ -255,7 +260,6 @@ class ElasticSentimentSelection(object):
                    'from': 0, 'size': 500, \
                    'query': {'query_string': {'query': search_phrase.encode('utf-8'), \
                                               'fields': ['Full text:']}}}
-
 
         response = json.loads(elastic.search(elastic.ES_URL, index, payload))
         return response

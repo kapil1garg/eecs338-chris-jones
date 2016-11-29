@@ -82,7 +82,7 @@ THEATER_QUERY = {
 }
 
 class ElasticEntityExtractor(object):
-    """docstring for ElasticEntityExtractor"""
+    """Extracts entities stored in Elastic Search annotated by the Google NLP API and saves to disk"""
     def __init__(self, show_file, people_file, theater_file):
         # files to pull existing data and store new parsed data
         self.show_file = show_file

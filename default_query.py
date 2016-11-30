@@ -182,3 +182,59 @@ class PersonThoughtsQuery(DefaultQuery):
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
         return self.format_response(r[0], question_type = 'What was PERSON best performance')
+
+
+    def generate_response_good_noun(self, query, annotated_query):
+        payload = {
+            "query": {
+                "query_string": {
+                    "query": query.encode('utf-8'),
+                    "fields": ["Full text:"]
+                }
+            }
+        }
+        payload = {
+            "_source": ["sentences.content", "Full text:", "ProQ:"],
+            "query": {
+                "bool": {
+                    "must": [{
+                        "match": {
+                            "Full text:": p
+                        }}
+                             for p in annotated_query.people]
+                }
+            }
+        }
+
+        r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
+        ids = [i['_id'] for i in r]
+
+        payload = {
+            "_source": ["sentences.content", "Full text:", "ProQ:"],
+            "query": {
+                "bool": {
+                    "must": [{
+                        "ids": {
+                            "values": ids
+                        }},
+                             {"nested" : {
+                                 "path" : "sentences",
+                                 "query" : {
+                                     "bool": {
+                                         "should":
+
+
+                                         [ {"match": {"sentences.content": i}} for i in ['strong', 'dynamic', 'elegant', 'powerful', 'good', 'excellent', 'shocking', 'emerging', 'riveting', 'focused', 'intelligent', 'smart', 'subtle', 'outstanding', 'accomplished', 'terrific', 'great', 'love', 'performance', 'favorite', 'best', 'portral', 'cast']],
+                                         "must": [{"match": {"sentences.content": p}} for p in annotated_query.people + annotated_query.keywords['keywords']['NOUN']]
+
+                                     }
+                                 },
+                                 "inner_hits": {}
+                             }}]
+                }
+            }
+        }
+        r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
+        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
+
+        return self.format_response(r[0], question_type = 'Is PERSON a good NOUN')

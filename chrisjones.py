@@ -78,7 +78,7 @@ class ChrisJones:
             print 'People Query'
             router = {
             'what was PERSON best performance': lambda x,y: PersonThoughtsQuery().generate_response_best_performance(x, y),
-            'do you think PERSON is a good NOUN': lambda x,y: DefaultQuery().generate_response(x, y),
+            'do you think PERSON is a good NOUN': lambda x,y: PersonThoughtsQuery().generate_response_good_noun(x, y),
             'what do you think of PERSON': lambda x,y: PersonThoughtsQuery().generate_response(x, y)
             }
             # Find the closest question type and use it to access handler

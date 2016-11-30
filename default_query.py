@@ -129,7 +129,8 @@ class PersonThoughtsQuery(DefaultQuery):
                                          "should":
 
 
-                                         [ {"match": {"sentences.content": i}} for i in ['strong', 'dynamic', 'elegant', 'up-and-coming', 'powerful', 'good', 'bad', 'excellent', 'flat', 'disappointing', 'shocking', 'emerging', 'growing', 'riveting', 'depressing', 'awful', 'focused', 'intelligent', 'smart', 'subtle']]
+                                         [ {"match": {"sentences.content": i}} for i in ['strong', 'dynamic', 'elegant', 'up-and-coming', 'powerful', 'good', 'bad', 'excellent', 'flat', 'disappointing', 'shocking', 'emerging', 'growing', 'riveting', 'depressing', 'awful', 'focused', 'intelligent', 'smart', 'subtle', 'outstanding', 'accomplished', 'terrific', 'great', 'love', 'hate', 'like']],
+                                         "must": {"match": {"sentences.content": annotated_query.people[0]}}
 
                                      }
                                  },
@@ -158,7 +159,7 @@ class PersonThoughtsQuery(DefaultQuery):
                 print 'found'
                 break
         # Construct and Return response to slackbot
-        question_type = 'Default'
+        question_type = 'What do you think of PERSON'
         return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text.encode('utf8'), article_title)
 
 

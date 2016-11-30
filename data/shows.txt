@@ -1,5 +1,4 @@
 #DateMe: An OkCupid Experiment
-(Your) Show of Shows
 1/2 Caf Chronicles
 101 Dalmatians
 110 in the Shade
@@ -211,7 +210,6 @@ Abide With Me
 Abigail's Party
 Abingdon Square
 About Face
-About Her(e): Reflections of Femininity and Place
 About Love
 Above the Law
 Above the Line
@@ -1528,7 +1526,6 @@ Emile de Becque
 Emma
 Emma and Company
 Emotional Recall
-Empire (Art & Politics
 En Route
 Enchanted April
 Encores
@@ -2246,7 +2243,6 @@ Hunting and Gathering
 Hurlyburly
 Hyde in Hollywood
 Hysteria
-I (Who Have Nothing
 I Am Changing
 I Am My Own Best Friend
 I Am My Own Wife
@@ -4304,7 +4300,6 @@ Soldier's Fugue
 Soliloquy
 Solo Piano
 Some Enchanted Evening
-Some Girl(s)
 Some Kind of Wonderful
 Some Like It Hot
 Some Like it Hot
@@ -5631,7 +5626,6 @@ The Problematic Cartoonist
 The Producers
 The Producers: The Book, Lyrics and Story Behind the Biggest Hit
 The Project
-The Project(s)
 The Prophet
 The Psychopath Not Taken
 The Pull Toy
@@ -6639,7 +6633,6 @@ You Don't Know This Man
 You Gotta Get A Gimmick
 You Gotta Get a Gimmick
 You Made Me Love You
-You Make Me Feel Like) A Natural Woman
 You Make Me Feel So Young
 You Never Know
 You Said You Loved Me
@@ -6664,7 +6657,6 @@ Your Face or Mine
 Your Feet's Too Big
 Your Friends & Neighbors
 Your Love
-Your Love Keeps Lifting Me) Higher and Higher
 Your World
 Zara Spook
 Zaz Zuh Zaz

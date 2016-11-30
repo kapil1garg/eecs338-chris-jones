@@ -13,6 +13,8 @@ from fuzzywuzzy import process
 from es_sentiment_selection import ElasticSentimentSelection
 from default_query import DefaultQuery
 from default_query import PersonThoughtsQuery
+from theater_query import TheaterQuery
+import pdb
 
 
 class ChrisJones:
@@ -66,9 +68,9 @@ class ChrisJones:
             # Theater-related questions
             print 'Theater Query'
             router = {
-            'what was your favorite show at THEATER': lambda x,y: DefaultQuery().generate_response(x, y),
-            'How has THEATER changed over time': lambda x,y: DefaultQuery().generate_response(x, y),
-            'I want to go to THEATER. Do you think it is good': lambda x,y: DefaultQuery().generate_response(x, y)
+            'what was your favorite show at THEATER': lambda x,y: TheaterQuery().generate_response(x, y),
+            'How has THEATER changed over time': lambda x,y: TheaterQuery().generate_response(x, y),
+            'I want to go to THEATER. Do you think it is good': lambda x,y: TheaterQuery().generate_response(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)

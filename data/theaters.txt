@@ -1,6 +1,5 @@
 16th Street Theater
 20% Theatre Company Chicago
-59E59 Theaters
 A Red Orchid Theater
 A Red Orchid Theatre
 Aardvark
@@ -31,6 +30,7 @@ American Theater
 American Theater Co.
 American Theater Co. SOUND
 American Theater Company
+American Theatre Company
 Amicus Theatre Company
 Angel Island Theatre Company
 Annoyance Theater
@@ -104,6 +104,7 @@ Broken Jar Center
 Broken Nose Theatre
 Brown Couch Theatre Company
 Brown Paper Box Co.
+Brown Paper Box Co. 
 Bruised Orange Theater
 Buckingham
 Buffalo Theatre Ensemble
@@ -140,7 +141,7 @@ Chicago Contemporary Dance
 Chicago Cultural Center
 Chicago Danztheatre Ensemble
 Chicago Dramatists
-Chicago Dramatists
+Chicago Dramatists 
 Chicago Fringe Festival
 Chicago Gay Men's Chorus
 Chicago Heights Drama Group
@@ -244,6 +245,7 @@ Econo Art
 Edge of the Lookingglass
 Edgewater Beach Playhouse
 Emerald City Theatre
+Emerald City Theatre 
 Emerald City Theatre Company
 Emergent Theatre Company
 Equity Library Theatre Chicago
@@ -274,6 +276,7 @@ Free Street Theatre
 Free Theatre
 Fremont Street Theater Company
 Garrick Theatre (called the Schiller until Shubert Ownership)
+Gerald Schoenfeld Theatre
 Getz Theatre of Columbia College
 Ghostlight Ensemble Theatre Company
 Gift Theatre Company
@@ -283,6 +286,7 @@ Godzilla Rainbow Troupe
 Goodman Theater
 Goodman Theatre
 Gorilla Tango
+Gorilla Tango 
 Grand Opera House
 Grant Park Music Festival
 Greasy Joan & Company
@@ -381,6 +385,7 @@ Luna Negra Dance Theater
 Lyric Opera of Chicago
 Lyric Theatre
 MCA Stage
+MCA Stage 
 MCL Chicago
 MadKap Productions
 Madison Street Theatre
@@ -392,6 +397,7 @@ Martin
 Mary-Arrchie Theatre Company
 Mason Hall Theater
 McAninch Arts Center
+McAninch Arts Center 
 McVickers
 Mercury Theater
 Mercy Street Theatre Company
@@ -414,6 +420,7 @@ Naperville-North Central College Performing Arts Association
 National Jewish Theater
 National Pastime Theater
 Navy Pier
+Navy Pier 
 Nederlander Organization
 Neofuturists
 New Adelphi (see Haverly's)
@@ -444,6 +451,7 @@ Northlight Theater
 Northlight Theatre
 Northwestern University
 Nothing Without a Company
+Nothing Without a Company 
 Noyes Cultural Arts Center
 Nuns4Fun Entertainment
 Oak Park Festival Theatre
@@ -591,6 +599,7 @@ The Artistic Home
 The Auditorium Theatre
 The Chicago Theatre
 The Commission Theatre Co.
+The Commission Theatre Co. 
 The Comrades
 The Cuckoo's Theater Project
 The Den Theatre
@@ -630,6 +639,7 @@ Theatre Y
 Theatre at the Center
 Theatre-Hikes
 Theatre-Hikes(R)
+Theatre-Hikes(R) 
 TheatreDreams
 Theo Ubique Cabaret Theatre
 Three Brothers Theatre

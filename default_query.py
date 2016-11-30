@@ -85,14 +85,16 @@ class DefaultQuery(object):
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
-        # TODO - This is hella sloppy, replace all this with something robust and coherent
+        return self.format_response(r[0])
 
-        article_title = self.clean_article_title(r[0][1])
+    def format_response(self, result_tuple, question_type = 'Default'):
+
+        article_title = self.clean_article_title(result_tuple[1])
 
         # Grab sentence from query
-        sent = r[0][0]['hits'][0]['_source']['content']
+        sent = result_tuple[0]['hits'][0]['_source']['content']
         # Split full text into paragraphs
-        article_text = r[0][2].splitlines()
+        article_text = result_tuple[2].splitlines()
         # Find the paragraph with the sentence we want
         response_text = article_text[0] #pick first paragraph as default
         for p in article_text:
@@ -102,7 +104,6 @@ class DefaultQuery(object):
                 print 'found'
                 break
         # Construct and Return response to slackbot
-        question_type = 'Default'
         return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text.encode('utf8'), article_title)
 
 
@@ -142,25 +143,42 @@ class PersonThoughtsQuery(DefaultQuery):
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
-        # TODO - This is hella sloppy, replace all this with something robust and coherent
-
-        article_title = self.clean_article_title(r[0][1])
-
-        # Grab sentence from query
-        sent = r[0][0]['hits'][0]['_source']['content']
-        # Split full text into paragraphs
-        article_text = r[0][2].splitlines()
-        # Find the paragraph with the sentence we want
-        response_text = article_text[0] #pick first paragraph as default
-        for p in article_text:
-            if re.search(sent[:10], p) != None:
-                # Add markup formatting
-                response_text = p.replace(sent, '*{}*'.format(sent))
-                print 'found'
-                break
-        # Construct and Return response to slackbot
-        question_type = 'What do you think of PERSON'
-        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text.encode('utf8'), article_title)
+        return self.format_response(r[0], question_type = 'What do you think of PERSON')
 
 
 
+
+
+    def generate_response_best_performance(self, query, annotated_query):
+        ids = self.get_relevant_document_ids(query)
+
+        # Make Fall-back ES Query
+        payload = {
+            "_source": ["sentences.content", "Full text:", "ProQ:"],
+            "query": {
+                "bool": {
+                    "must": [{
+                        "ids": {
+                            "values": ids
+                        }},
+                             {"nested" : {
+                                 "path" : "sentences",
+                                 "query" : {
+                                     "bool": {
+                                         "should":
+
+
+                                         [ {"match": {"sentences.content": i}} for i in ['strong', 'dynamic', 'elegant', 'powerful', 'good', 'excellent', 'shocking', 'emerging', 'riveting', 'focused', 'intelligent', 'smart', 'subtle', 'outstanding', 'accomplished', 'terrific', 'great', 'love', 'performance', 'favorite', 'best', 'portral', 'cast']],
+                                         "must": {"match": {"sentences.content": annotated_query.people[0]}}
+
+                                     }
+                                 },
+                                 "inner_hits": {}
+                             }}]
+                }
+            }
+        }
+        r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
+        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
+
+        return self.format_response(r[0], question_type = 'What was PERSON best performance')

@@ -77,7 +77,7 @@ class ChrisJones:
             # People-related questions
             print 'People Query'
             router = {
-            'what was PERSON best performance': lambda x,y: DefaultQuery().generate_response(x, y),
+            'what was PERSON best performance': lambda x,y: PersonThoughtsQuery().generate_response_best_performance(x, y),
             'do you think PERSON is a good NOUN': lambda x,y: DefaultQuery().generate_response(x, y),
             'what do you think of PERSON': lambda x,y: PersonThoughtsQuery().generate_response(x, y)
             }

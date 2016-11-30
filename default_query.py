@@ -186,14 +186,6 @@ class PersonThoughtsQuery(DefaultQuery):
 
     def generate_response_good_noun(self, query, annotated_query):
         payload = {
-            "query": {
-                "query_string": {
-                    "query": query.encode('utf-8'),
-                    "fields": ["Full text:"]
-                }
-            }
-        }
-        payload = {
             "_source": ["sentences.content", "Full text:", "ProQ:"],
             "query": {
                 "bool": {

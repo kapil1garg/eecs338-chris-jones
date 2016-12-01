@@ -43,4 +43,4 @@ class TheaterQuery(DefaultQuery):
     r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
 
-    return self.format_response(r[0], question_type = 'Theater')
+    return self.format_response(r[0])

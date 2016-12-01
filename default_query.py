@@ -87,7 +87,7 @@ class DefaultQuery(object):
 
         return self.format_response(r[0])
 
-    def format_response(self, result_tuple, question_type = 'Default'):
+    def format_response(self, result_tuple):
 
         article_title = self.clean_article_title(result_tuple[1])
 
@@ -104,7 +104,7 @@ class DefaultQuery(object):
                 print 'found'
                 break
         # Construct and Return response to slackbot
-        return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, response_text.encode('utf8'), article_title)
+        return '{0}\n_From: {1}_'.format(response_text.encode('utf8'), article_title)
 
 
 
@@ -143,7 +143,7 @@ class PersonThoughtsQuery(DefaultQuery):
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
-        return self.format_response(r[0], question_type = 'What do you think of PERSON')
+        return self.format_response(r[0])
 
 
 
@@ -181,7 +181,7 @@ class PersonThoughtsQuery(DefaultQuery):
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
-        return self.format_response(r[0], question_type = 'What was PERSON best performance')
+        return self.format_response(r[0])
 
 
     def generate_response_good_noun(self, query, annotated_query):
@@ -229,4 +229,4 @@ class PersonThoughtsQuery(DefaultQuery):
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
-        return self.format_response(r[0], question_type = 'Is PERSON a good NOUN')
+        return self.format_response(r[0])

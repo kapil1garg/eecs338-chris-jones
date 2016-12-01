@@ -63,16 +63,6 @@ class ChrisJones:
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
-        elif len(annotated_query.shows) > 0:
-            # Show related question types
-            print 'Show Query'
-            router = {
-                'what did you think of SHOW': lambda x,y: DefaultQuery().generate_response(x, y),
-                'what do you think is the best SHOW right now': lambda x,y: DefaultQuery().generate_response(x, y),
-                'what do you think of NOUN in SHOW': lambda x,y: DefaultQuery().generate_response(x, y)
-            }
-            # Find the closest question type and use it to access handler
-            return self.call_handler(router, query, annotated_query)
 
 
         elif len(annotated_query.people) > 0:
@@ -95,6 +85,17 @@ class ChrisJones:
                       for t in ['THEATER', 'SHOW', 'GENRE', 'PERSON'] \
                       for d in ['like', 'dislike', 'hate', 'love']}
 
+            return self.call_handler(router, query, annotated_query)
+
+        elif len(annotated_query.shows) > 0:
+            # Show related question types
+            print 'Show Query'
+            router = {
+                'what did you think of SHOW': lambda x,y: DefaultQuery().generate_response(x, y),
+                'what do you think is the best SHOW right now': lambda x,y: DefaultQuery().generate_response(x, y),
+                'what do you think of NOUN in SHOW': lambda x,y: DefaultQuery().generate_response(x, y)
+            }
+            # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
         elif any(re.search(i, query) != None for i in ['Chicago', 'chicago', 'New York', 'NYC']):

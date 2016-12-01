@@ -264,3 +264,16 @@ class PersonThoughtsQuery(DefaultQuery):
 
         print 'Favorite {}'.format(annotated_query.keywords['keywords']['NOUN'][0])
         return self.format_response(r[0])
+
+class LocationQuery(DefaultQuery):
+    def __init__(self):
+        self.dummy = 0
+    def ny_v_chicago(self, query, annotated_query):
+        t = "Acting ensembles are more common in Chicago than any other major theater city. *In New York, actors tend to be viewed as a commodity.* And unless they have celebrity status, actors there don't have a great deal of influence over play selection at the city's non-profit theaters, which are mostly led by auteur artistic directors. It's much the same in London. And with a few exceptions -- the Milwaukee Repertory Theater being one -- most American regional theaters don't keep a company of actors. They hire performers by the show. Actors don't get to pick roles for themselves.\nBut in Chicago -- where actors enjoy more power -- the storied acting ensemble is common.\nIt defines the Steppenwolf Theatre Company -- a theater that, in its early days, often picked its repertoire based on a talented someone's desire for a juicy role. The recent Lookingglass Theatre production of \"Our Town\" was specifically designed to showcase the intertwined, creative relationships of its ensemble. Many smaller theaters -- Congo Square, Lifeline, Profiles and many others -- have acting ensembles."
+        s = "_From: Pondering the ensemble question_"
+        return "{0}\n{1}".format(t, s)
+    def chicago_essence(self, query, annotated_query):
+        t = "Galati adapting an iconic American work by John Steinbeck inevitably recalls one of the most famous productions in the history of Chicago theater, \"The Grapes of Wrath,\" which in 1988 showcased the Dust Bowl work of such actors as Gary Sinise, Lois Smith and John C. Reilly and did a great deal to cement Steppenwolf's international reputation (although in his Tribune review, then-critic Richard Christiansen expressed disappointment). *\"The Grapes of Wrath\" had a formidable life, moving to Broadway in 1990 and becoming, in many minds, one of that small collection of shows to embody the very essence of Steppenwolf.*"
+        s = "_From: Galati returns with East of Eden adaptation_"
+        return "{0}\n{1}".format(t, s)
+

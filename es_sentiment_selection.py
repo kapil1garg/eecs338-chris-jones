@@ -146,7 +146,7 @@ class ElasticSentimentSelection(object):
 
     def get_best_sentence(self, search_phrase):
         """
-        Return best sentence for search phrase
+        Return best sentence, with assocated text, and title
 
         Inputs:
             search_phrase (string): string phrase to search for in elastic search
@@ -165,10 +165,12 @@ class ElasticSentimentSelection(object):
         top_sentence = self.get_most_subjective_sentence(closest_doc)
 
         # get article title
-        raw_title = closest_doc['_source']['ProQ:']
-        article_title = re.split('title=', raw_title)[1].replace('+', ' ').replace('&', '')
+        article_title = closest_doc['_source']['ProQ:']
 
-        return top_sentence, article_title
+        # get article full text
+        article_full_text = closest_doc['_source']['Full text:']
+
+        return top_sentence, article_title, article_full_text
 
     def get_closest_document(self, sentiment):
         """
@@ -250,7 +252,7 @@ class ElasticSentimentSelection(object):
         quantile = np.percentile(scores, 50)
 
         # get responses where min_score >= quantile
-        payload = {'_source': ['ProQ:', 'sentences', 'documentSentiment'],
+        payload = {'_source': ['ProQ:', 'sentences', 'documentSentiment', 'Full text:'],
                    'min_score': quantile, \
                    'from': 0, 'size': 500, \
                    'query': {'query_string': {'query': search_phrase.encode('utf-8'), \

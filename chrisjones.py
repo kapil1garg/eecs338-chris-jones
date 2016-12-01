@@ -10,10 +10,10 @@ import re
 from QueryAnalyzer import QueryAnalyzer
 import random
 from fuzzywuzzy import process
-from es_sentiment_selection import ElasticSentimentSelection
 from default_query import DefaultQuery
 from default_query import PersonThoughtsQuery
 from theater_query import TheaterQuery
+from sentiment_query import SentimentQuery
 import pdb
 
 
@@ -23,9 +23,8 @@ class ChrisJones:
     """
     def __init__(self):
         self.query_analyzer = QueryAnalyzer()
+        self.sentiment_selector = SentimentQuery()
         print 'ChrisJones activated'
-
-
 
     def respond(self, query):
         """
@@ -91,10 +90,12 @@ class ChrisJones:
             # TODO - Determine a more satisfying way to kick off this handler, perhaps it should just be more specific
             # Sentiment Aggregation query handler
             print 'Sentiment Query'
-            ess = ElasticSentimentSelection()
-            best_response = ess.get_best_sentence(query)
-            question_type = 'Sentiment Aggregation'
-            return '*Q:* {0}\n*A:* {1}\n*From*: {2}'.format(question_type, best_response[0], best_response[1])
+            router = {('do you ' + d + ' ' + t):\
+                      (lambda x, y: self.sentiment_selector.generate_response(x, y)) \
+                      for t in ['THEATER', 'SHOW', 'GENRE', 'PERSON'] \
+                      for d in ['like', 'dislike', 'hate', 'love']}
+
+            return self.call_handler(router, query, annotated_query)
 
         elif any(re.search(i, query) != None for i in ['Chicago', 'chicago', 'New York', 'NYC']):
             # Location and/or Chicago-based questions
@@ -126,8 +127,6 @@ class ChrisJones:
         question_type = process.extractOne(annotated_query.get_framework(), router.keys())[0]
         return router[question_type](query, annotated_query)
 
-
-
 if __name__ == '__main__':
     # Work on query routing now
     cj = ChrisJones()
@@ -136,4 +135,3 @@ if __name__ == '__main__':
     qa = QueryAnalyzer()
     annotated_query = qa.get_keywords(query)
     print cj.route_query(query, annotated_query)
-

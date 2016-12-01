@@ -25,7 +25,8 @@ class ElasticSentimentSelection(object):
         self.classifier = None
 
         if os.path.exists('models/sentiment/label_probdist.p') and \
-           os.path.exists('models/sentiment/feature_probdist.p') and not rebuild:
+           os.path.exists('models/sentiment/feature_probdist.p') and \
+           os.path.exists('models/sentiment/word_feature_list.p') and  not rebuild:
             print 'loading sentiment model'
 
             # load in model files
@@ -33,6 +34,8 @@ class ElasticSentimentSelection(object):
                 label_probdist = pickle.load(label_probdist_file)
             with open('models/sentiment/feature_probdist.p', 'rb') as feature_probdist_file:
                 feature_probdist = pickle.load(feature_probdist_file)
+            with open('models/sentiment/word_feature_list.p', 'rb') as word_feature_list_file:
+                self.word_features = pickle.load(word_feature_list_file)
 
             # instantiate classifier
             self.classifier = nltk.NaiveBayesClassifier(label_probdist, feature_probdist)
@@ -48,6 +51,7 @@ class ElasticSentimentSelection(object):
 
             # train model
             sentiment_training_data = subjective_docs + objective_docs
+            self.create_word_features(self.extract_words(sentiment_training_data))
             self.classifier = self.train_sentiment_classifier(sentiment_training_data)
 
             # save out model so it will not need to be regenerated
@@ -55,6 +59,8 @@ class ElasticSentimentSelection(object):
                 pickle.dump(self.classifier._label_probdist, label_probdist_file)
             with open('models/sentiment/feature_probdist.p', 'wb') as feature_probdist_file:
                 pickle.dump(self.classifier._feature_probdist, feature_probdist_file)
+            with open('models/sentiment/word_feature_list.p', 'wb') as word_feature_list_file:
+                pickle.dump(self.word_features, word_feature_list_file)
 
     def extract_words(self, text_tuples):
         """
@@ -211,8 +217,9 @@ class ElasticSentimentSelection(object):
         top_sentence_subjectivity = 0
 
         for i in closest_doc['_source']['sentences']:
-            curr_sentence_tokens = i['content'].split()
+            curr_sentence_tokens = [token.lower() for token in i['content'].split()]
             curr_sentence_features = self.extract_features(curr_sentence_tokens)
+
             curr_subjectivity = self.classifier.prob_classify(curr_sentence_features).prob('subj')
 
             if curr_subjectivity > top_sentence_subjectivity:
@@ -267,6 +274,8 @@ def main():
     """
     ess = ElasticSentimentSelection()
     print ess.get_best_sentence('Aladdin')
+    print ess.get_best_sentence('Goodman Theater')
+    print ess.get_best_sentence('John Malkovich')
     print ess.get_best_sentence('Romeo and Juliet')
     print ess.get_best_sentence('Hamlet')
 

@@ -17,6 +17,7 @@ from default_query import DefaultQuery
 from default_query import PersonThoughtsQuery
 from theater_query import TheaterQuery
 from sentiment_query import SentimentQuery
+from show_query import ShowQuery
 
 class ChrisJones:
     """
@@ -107,8 +108,8 @@ class ChrisJones:
             print 'Show Query'
             router = {
                 'what did you think of SHOW': lambda x, y: self.sentiment_selector.generate_response(x, y),
-                'what do you think is the best SHOW right now': lambda x,y: DefaultQuery().generate_response(x, y),
-                'what do you think of NOUN in SHOW': lambda x,y: DefaultQuery().generate_response(x, y)
+                'what do you think is the best SHOW right now': lambda x,y: ShowQuery().generate_response_best_show(x, y),
+                'what do you think of NOUN in SHOW': lambda x,y: ShowQuery().generate_response_person_in_show(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)

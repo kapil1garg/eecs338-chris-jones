@@ -43,11 +43,23 @@ class ChrisJones:
 
         # Route to correct query handler
         if (query == 'how do you like your comedy'):
+            print 'comedy query'
             return DefaultQuery().generate_response(query, annotated_query)
-        elif (query == 'do you have a favorite actor'):
-            return DefaultQuery().generate_response(query, annotated_query)
-        elif (query == 'do you have a favorite director'):
-            return DefaultQuery().generate_response(query, annotated_query)
+        elif (query in ['do you have a favorite actor',
+                        'do you have a favorite director',
+                        'do you have a favorite actress',
+                        'do you have a favorite playwright',
+                        'do you have a favorite show',
+                        'do you have a favorite theater',
+                        'do you have a favorite theatre',
+                        'who is your favorite actor',
+                        'who is your favorite director',
+                        'who is your favorite actress',
+                        'who is your favorite playwright',
+                        'what is your favorite show',
+                        'what is your favorite theater',
+                        'what is your favorite theatre']):
+            return PersonThoughtsQuery().generate_response_favorite_person(query, annotated_query)
 
         elif any(re.search(i, query) != None for i in ['like', 'dislike', 'love', 'hate']):
             # TODO - Determine a more satisfying way to kick off this handler, perhaps it should just be more specific

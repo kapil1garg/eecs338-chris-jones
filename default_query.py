@@ -249,7 +249,7 @@ class PersonThoughtsQuery(DefaultQuery):
                                          "should":
 
 
-                                         [ {"match": {"sentences.content": i}} for i in ['favorite', 'outstanding', 'terrific', 'killer']],
+                                         [ {"match": {"sentences.content": i}} for i in ['favorite', 'outstanding', 'terrific', 'killer', 'best', 'precious', 'dearest', 'greatest']],
                                          "must": [{"match": {"sentences.content": p}} for p in annotated_query.keywords['keywords']['NOUN']]
 
                                      }

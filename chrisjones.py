@@ -92,7 +92,7 @@ class ChrisJones:
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
-        elif len(annotated_query.people) > 0:
+        elif len(annotated_query.people) > 0 and len(annotated_query.shows) == 0:
             # People-related questions
             print 'People Query'
             router = {
@@ -109,7 +109,7 @@ class ChrisJones:
             router = {
                 'what did you think of SHOW': lambda x, y: self.sentiment_selector.generate_response(x, y),
                 'what do you think is the best SHOW right now': lambda x,y: ShowQuery().generate_response_best_show(x, y),
-                'what do you think of NOUN in SHOW': lambda x,y: ShowQuery().generate_response_person_in_show(x, y)
+                'what do you think of PERSON in SHOW': lambda x,y: ShowQuery().generate_response_person_in_show(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)

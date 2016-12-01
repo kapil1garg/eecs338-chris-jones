@@ -15,12 +15,12 @@ class ShowQuery(DefaultQuery):
     def generate_response_best_show(self, query, annotated_query):
         # find document id with max polarity
         payload = {
-            "_source": ["documentSentiment.polarity"],
-            "query": {
-                "bool": {
-                    "must": [{
-                        "match": {
-                            "Full text:": p
+            '_source': ['documentSentiment.polarity'],
+            'query': {
+                'bool': {
+                    'must': [{
+                        'match': {
+                            'Full text:': p
                         }}
                              for p in annotated_query.shows]
                 }
@@ -33,21 +33,21 @@ class ShowQuery(DefaultQuery):
 
         # return sentence from document id that contains show in a sentence
         payload = {
-            "_source": ["sentences.content", "Full text:", "ProQ:"],
-            "query": {
-                "bool": {
-                    "must": [{
-                        "ids": {
-                            "values": [id_max_polarity]
+            '_source': ['sentences.content', 'Full text:', 'ProQ:'],
+            'query': {
+                'bool': {
+                    'must': [{
+                        'ids': {
+                            'values': [id_max_polarity]
                         }},
-                             {"nested" : {
-                                 "path" : "sentences",
-                                 "query" : {
-                                     "bool": {
-                                         "must": [{"match": {"sentences.content": p}} for p in annotated_query.shows]
+                             {'nested' : {
+                                 'path' : 'sentences',
+                                 'query' : {
+                                     'bool': {
+                                         'must': [{'match': {'sentences.content': p}} for p in annotated_query.shows]
                                      }
                                  },
-                                 "inner_hits": {}
+                                 'inner_hits': {}
                              }}]
                 }
             }
@@ -58,4 +58,40 @@ class ShowQuery(DefaultQuery):
         return self.format_response(r[0])
 
     def generate_response_person_in_show(self, query, annotated_query):
-        pass
+        match_queries = [{
+                'match': {
+                    'Full text:': show
+                }
+            }
+            for show in annotated_query.shows
+        ]
+        match_queries.append({
+            'nested': {
+                'path': 'sentences',
+                'query': {
+                    'bool': {
+                        'must': [{
+                                'match': {
+                                    'sentences.content': p
+                                }
+                            }
+                            for p in annotated_query.people
+                        ]
+                    }
+                },
+                'inner_hits': {}
+            }
+        })
+        payload = {
+            '_source': ['sentences.content', 'Full text:', 'ProQ:'],
+            'query': {
+                'bool': {
+                    'must': match_queries
+                }
+            }
+        }
+
+        r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
+        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
+
+        return self.format_response(r[0])

@@ -16,7 +16,7 @@ class SentimentQuery(DefaultQuery):
 
     def generate_response(self, query, annotated_query):
         # find what the subject is
-        subject = annotated_query.keywords['keywords']['NOUN']
+        subject = " ".join(annotated_query.people + annotated_query.theaters + annotated_query.shows)
         response = self.ess.get_best_sentence(subject)
 
         return self.format_response(response)

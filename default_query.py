@@ -98,7 +98,7 @@ class DefaultQuery(object):
         # Find the paragraph with the sentence we want
         response_text = article_text[0] #pick first paragraph as default
         for p in article_text:
-            if re.search(sent[:10], p) != None:
+            if re.search(sent, p) != None:
                 # Add markup formatting
                 response_text = p.replace(sent, '*{}*'.format(sent))
                 print 'found'
@@ -229,4 +229,38 @@ class PersonThoughtsQuery(DefaultQuery):
         r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
+        return self.format_response(r[0])
+
+    def generate_response_favorite_person(self, query, annotated_query):
+        ids = self.get_relevant_document_ids(query)
+
+        payload = {
+            "_source": ["sentences.content", "Full text:", "ProQ:"],
+            "query": {
+                "bool": {
+                    "must": [{
+                        "ids": {
+                            "values": ids
+                        }},
+                             {"nested" : {
+                                 "path" : "sentences",
+                                 "query" : {
+                                     "bool": {
+                                         "should":
+
+
+                                         [ {"match": {"sentences.content": i}} for i in ['favorite', 'outstanding', 'terrific', 'killer', 'best', 'precious', 'dearest', 'greatest']],
+                                         "must": [{"match": {"sentences.content": p}} for p in annotated_query.keywords['keywords']['NOUN']]
+
+                                     }
+                                 },
+                                 "inner_hits": {}
+                             }}]
+                }
+            }
+        }
+        r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
+        r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
+
+        print 'Favorite {}'.format(annotated_query.keywords['keywords']['NOUN'][0])
         return self.format_response(r[0])

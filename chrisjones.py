@@ -45,6 +45,17 @@ class ChrisJones:
         if (query == 'how do you like your comedy'):
             return DefaultQuery().generate_response(query, annotated_query)
 
+        elif any(re.search(i, query) != None for i in ['like', 'dislike', 'love', 'hate']):
+            # TODO - Determine a more satisfying way to kick off this handler, perhaps it should just be more specific
+            # Sentiment Aggregation query handler
+            print 'Sentiment Query'
+            router = {('do you ' + d + ' ' + t):\
+                      (lambda x, y: self.sentiment_selector.generate_response(x, y)) \
+                      for t in ['THEATER', 'SHOW', 'GENRE', 'PERSON'] \
+                      for d in ['like', 'dislike', 'hate', 'love']}
+
+            return self.call_handler(router, query, annotated_query)
+
         elif len(annotated_query.genres) > 0:
             # Genre query handler
             ### 'how do you like your GENRE',
@@ -76,16 +87,6 @@ class ChrisJones:
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
-        elif any(re.search(i, query) != None for i in ['like', 'dislike', 'love', 'hate']):
-            # TODO - Determine a more satisfying way to kick off this handler, perhaps it should just be more specific
-            # Sentiment Aggregation query handler
-            print 'Sentiment Query'
-            router = {('do you ' + d + ' ' + t):\
-                      (lambda x, y: self.sentiment_selector.generate_response(x, y)) \
-                      for t in ['THEATER', 'SHOW', 'GENRE', 'PERSON'] \
-                      for d in ['like', 'dislike', 'hate', 'love']}
-
-            return self.call_handler(router, query, annotated_query)
 
         elif len(annotated_query.shows) > 0:
             # Show related question types

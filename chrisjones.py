@@ -53,6 +53,17 @@ class ChrisJones:
             print 'Genre Query'
             return DefaultQuery().generate_response(query, annotated_query)
 
+        elif len(annotated_query.theaters) > 0:
+            # Theater-related questions
+            print 'Theater Query'
+            router = {
+            'what was your favorite show at THEATER': lambda x,y: TheaterQuery().generate_response(x, y),
+            'How has THEATER changed over time': lambda x,y: TheaterQuery().generate_response(x, y),
+            'I want to go to THEATER. Do you think it is good': lambda x,y: TheaterQuery().generate_response(x, y)
+            }
+            # Find the closest question type and use it to access handler
+            return self.call_handler(router, query, annotated_query)
+
         elif len(annotated_query.shows) > 0:
             # Show related question types
             print 'Show Query'
@@ -64,16 +75,6 @@ class ChrisJones:
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
-        elif len(annotated_query.theaters) > 0:
-            # Theater-related questions
-            print 'Theater Query'
-            router = {
-            'what was your favorite show at THEATER': lambda x,y: TheaterQuery().generate_response(x, y),
-            'How has THEATER changed over time': lambda x,y: TheaterQuery().generate_response(x, y),
-            'I want to go to THEATER. Do you think it is good': lambda x,y: TheaterQuery().generate_response(x, y)
-            }
-            # Find the closest question type and use it to access handler
-            return self.call_handler(router, query, annotated_query)
 
         elif len(annotated_query.people) > 0:
             # People-related questions

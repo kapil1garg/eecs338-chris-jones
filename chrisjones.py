@@ -1,22 +1,24 @@
 """
 This module is the brain of the Chris Jones Bot. It handles queries and constructs responses
 """
-import requests
 import json
+import re
+import random
+import pdb
+import requests
+from fuzzywuzzy import process
+
 import elastic
 from elastic import ES_URL
+
 from google_nlp_api import GoogleNlp
-import re
 from QueryAnalyzer import QueryAnalyzer
-import random
-from fuzzywuzzy import process
 from default_query import DefaultQuery
 from default_query import PersonThoughtsQuery
 from default_query import LocationQuery
 from theater_query import TheaterQuery
 from sentiment_query import SentimentQuery
-import pdb
-
+from show_query import ShowQuery
 
 class ChrisJones:
     """
@@ -91,9 +93,7 @@ class ChrisJones:
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
-
-
-        elif len(annotated_query.people) > 0:
+        elif len(annotated_query.people) > 0 and len(annotated_query.shows) == 0:
             # People-related questions
             print 'People Query'
             router = {
@@ -104,14 +104,13 @@ class ChrisJones:
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
-
         elif len(annotated_query.shows) > 0:
             # Show related question types
             print 'Show Query'
             router = {
-                'what did you think of SHOW': lambda x,y: DefaultQuery().generate_response(x, y),
-                'what do you think is the best SHOW right now': lambda x,y: DefaultQuery().generate_response(x, y),
-                'what do you think of NOUN in SHOW': lambda x,y: DefaultQuery().generate_response(x, y)
+                'what did you think of SHOW': lambda x, y: self.sentiment_selector.generate_response(x, y),
+                'what do you think is the best SHOW right now': lambda x,y: ShowQuery().generate_response_best_show(x, y),
+                'what do you think of PERSON in SHOW': lambda x,y: ShowQuery().generate_response_person_in_show(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
@@ -130,7 +129,6 @@ class ChrisJones:
             print 'Default Query'
             ### What do you think is good NOUN
             return DefaultQuery().generate_response(query, annotated_query)
-
 
     def call_handler(self, router, query, annotated_query):
         """

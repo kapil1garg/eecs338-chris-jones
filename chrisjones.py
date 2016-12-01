@@ -12,6 +12,7 @@ import random
 from fuzzywuzzy import process
 from default_query import DefaultQuery
 from default_query import PersonThoughtsQuery
+from default_query import LocationQuery
 from theater_query import TheaterQuery
 from sentiment_query import SentimentQuery
 import pdb
@@ -119,8 +120,8 @@ class ChrisJones:
             # Location and/or Chicago-based questions
             print 'Location/Chicago Query'
             router = {
-                'what embodies the essence of chicago theater': lambda x,y: DefaultQuery().generate_response(x, y),
-                'how is chicago different from New York?': lambda x,y: DefaultQuery().generate_response(x, y)
+                'what embodies the essence of chicago theater': lambda x,y: LocationQuery().chicago_essence(x, y),
+                'how is chicago different from New York?': lambda x,y: LocationQuery().ny_v_chicago(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)

@@ -80,7 +80,6 @@ Black Ensemble Theater
 Black Ensemble Theater Cultural Center
 Black Orchid
 Blackbird Theatre
-Blackstone(see Merle Reskin)
 Blair Thomas & Co
 Blind Parrot
 Blue Man Group
@@ -165,7 +164,6 @@ Chicago Shakespeare Theatre
 Chicago Stage Guild
 Chicago Symphony Orchestra
 Chicago Theater
-Chicago Theater Company (original name: X-Bag)
 Chicago Theater Works
 Chicago Theatre
 Chicago Theatre Group, Inc
@@ -229,7 +227,6 @@ Diamante Productions
 Dog and Pony Theatre Company
 Dominican University Performing Arts
 Dominican University Performing Arts Center
-Drama Group (community)
 Drama, Inc.
 Dream Theater
 Dream Theatre
@@ -252,7 +249,6 @@ Equity Library Theatre Chicago
 Erlanger
 Ethel M. Barber Theater
 Eugene O'Neill Theater Center
-Evanston Theater Company (became Northlight Repertory)
 FAM Entertainment Theater Company
 Factory Theater
 Factory Theatre
@@ -275,7 +271,6 @@ Free Shakespeare Company
 Free Street Theatre
 Free Theatre
 Fremont Street Theater Company
-Garrick Theatre (called the Schiller until Shubert Ownership)
 Gerald Schoenfeld Theatre
 Getz Theatre of Columbia College
 Ghostlight Ensemble Theatre Company
@@ -313,14 +308,12 @@ Hell in a Handbag Productions
 Hemmens Cultural Center
 Her Story Theater
 Highland Park Players
-Hooley's (renamed Powers at unspecified date)
 House Theater
 House Theatre
 Howard Reich THEATER
 Hubbard Street Dance
 Hull House Theatre
 Huron Theatre
-Hyde and Berman's Music Hall (see Iroquois)
 Hypocrites
 Idle Muse Theatre Company
 Illinois Arts Alliance
@@ -350,7 +343,6 @@ Jedlicka Performing Arts Center
 Joseph Jefferson Awards
 Joseph Jefferson Awards Committee
 Journeymen Theater Company
-K. O. Improv LLC (Improvidate)
 Kankakee Valley Theatre Association
 Keyhole Theatre Companys
 Kingston Mines
@@ -390,7 +382,6 @@ MCL Chicago
 MadKap Productions
 Madison Street Theatre
 Magic Circle Theatre
-Majestic (Shubert, 1945;LaSalle Bank, 2006)
 Mandel Hall
 Marriott Theatre
 Martin
@@ -401,17 +392,14 @@ McAninch Arts Center
 McVickers
 Mercury Theater
 Mercy Street Theatre Company
-Merle Reskin (formerly Blackstone)
 Metropolis Arts Center
 Metropolis Performing Arts Centre
 Michael Wilmington THEATER
 Midsommer Flight
-Mill, The (formerly Experimental Theater Chicago)
 Mitzi E. Newhouse Theater
 MoMing Dance and Arts Center
 Moving Dock Theatre Company
 Murder Mystery Productions
-Murray (see Martin)
 Music Theatre of Highland Park
 Musically Human Theatre
 Mystery Shop
@@ -423,7 +411,6 @@ Navy Pier
 Navy Pier 
 Nederlander Organization
 Neofuturists
-New Adelphi (see Haverly's)
 New Country Productions
 New Leaf Theatre
 New Millennium Theatre Company
@@ -440,7 +427,6 @@ No Shame Theatre
 Noble Fool Theater
 Noble Fool Theater Company
 North Central College Fine and Performing Arts
-North Light Repertory (became Northlight Theatre)
 North Riverside Players
 North Shore Center For The Performing Arts
 North Shore Center for Performing Arts
@@ -467,7 +453,6 @@ Oriental Theater
 Oriental Theatre
 Page Auditorium
 Paramount Theatre
-Parkway Community Center (branch of Hull House theater)
 Pegasus Players
 Pegasus Theatre Chicago
 Pekin
@@ -521,7 +506,6 @@ Reverie Theatre
 Rialto
 Rice's Theatre
 Richard Christiansen Theater
-Rising Stars Theatre (community)
 Rivendell Theatre Ensemble
 Rogue Theatre
 Route 66 Theater Company
@@ -544,7 +528,6 @@ Shakespeare Upstairs Theater
 Shapeshifters Theatre Company
 Shattered Globe Theatre
 ShawChicago
-Shubert (see Majestic)
 Side Project, The
 Sideshow Theatre Company
 Silk Road Rising
@@ -582,7 +565,6 @@ Studebaker
 Studebaker Theater Company
 Studio Theater
 Subtext Theater Company
-Summer Place (community)
 T.U.T.A. The Utopian Theatre Asylum
 Teatro Luna
 Teatro Vista
@@ -638,8 +620,6 @@ Theatre School of DePaul University
 Theatre Y
 Theatre at the Center
 Theatre-Hikes
-Theatre-Hikes(R)
-Theatre-Hikes(R) 
 TheatreDreams
 Theo Ubique Cabaret Theatre
 Three Brothers Theatre

@@ -1,6 +1,7 @@
 import unittest
 import clean_data
 
+
 class CleanDataTests(unittest.TestCase):
     def __get_sections(self):
         test_file = 'raw_data/ChrisJones-test.txt'
@@ -27,11 +28,13 @@ class CleanDataTests(unittest.TestCase):
         self.assertNotEqual(0, len(metadata))
         self.assertNotEqual(0, len(full_text))
 
+
 def main():
     """
     Called when module is called from command line
     """
     unittest.main()
 
+
 if __name__ == '__main__':
-  main()
+    main()

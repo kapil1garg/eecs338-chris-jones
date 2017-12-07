@@ -5,6 +5,7 @@ import re
 from es_sentiment_selection import ElasticSentimentSelection
 from default_query import DefaultQuery
 
+
 class SentimentQuery(DefaultQuery):
     """
     Handles ES queries related to sentiment
@@ -16,7 +17,8 @@ class SentimentQuery(DefaultQuery):
 
     def generate_response(self, query, annotated_query):
         # find what the subject is
-        subject = " ".join(annotated_query.people + annotated_query.theaters + annotated_query.genres + annotated_query.shows)
+        subject = " ".join(annotated_query.people + annotated_query.theaters + annotated_query.genres +
+                           annotated_query.shows)
         response = self.ess.get_best_sentence(subject)
 
         return self.format_response(response)
@@ -31,9 +33,9 @@ class SentimentQuery(DefaultQuery):
         article_text = result_tuple[2].splitlines()
 
         # Find the paragraph with the sentence we want
-        response_text = article_text[0] #pick first paragraph as default
+        response_text = article_text[0]  # pick first paragraph as default
         for paragraph in article_text:
-            if re.search(sent[:10], paragraph) != None:
+            if re.search(sent[:10], paragraph) is not None:
                 # Add markup formatting
                 response_text = paragraph.replace(sent, '*{}*'.format(sent))
                 print 'found'

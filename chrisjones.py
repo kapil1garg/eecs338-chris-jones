@@ -20,6 +20,7 @@ from theater_query import TheaterQuery
 from sentiment_query import SentimentQuery
 from show_query import ShowQuery
 
+
 class ChrisJones:
     """
     This is the main class of the Chris Jones Bot
@@ -42,7 +43,8 @@ class ChrisJones:
         annotated_query = self.query_analyzer.annotate(query)
         print annotated_query.get_framework()
 
-        # TODO - change uses of `query` to annotated_query.query to cut back on the number of arguments we have to pass around
+        # TODO - change uses of `query` to annotated_query.query to
+        # cut back on the number of arguments we have to pass around
 
         # Route to correct query handler
         if (query == 'how do you like your comedy'):
@@ -64,20 +66,20 @@ class ChrisJones:
                         'what is your favorite theatre']):
             return PersonThoughtsQuery().generate_response_favorite_person(query, annotated_query)
 
-        elif any(re.search(i, query) != None for i in ['like', 'dislike', 'love', 'hate']):
+        elif any(re.search(i, query) is not None for i in ['like', 'dislike', 'love', 'hate']):
             # TODO - Determine a more satisfying way to kick off this handler, perhaps it should just be more specific
             # Sentiment Aggregation query handler
             print 'Sentiment Query'
-            router = {('do you ' + d + ' ' + t):\
-                      (lambda x, y: self.sentiment_selector.generate_response(x, y)) \
-                      for t in ['THEATER', 'SHOW', 'GENRE', 'PERSON'] \
+            router = {('do you ' + d + ' ' + t):
+                      (lambda x, y: self.sentiment_selector.generate_response(x, y))
+                      for t in ['THEATER', 'SHOW', 'GENRE', 'PERSON']
                       for d in ['like', 'dislike', 'hate', 'love']}
 
             return self.call_handler(router, query, annotated_query)
 
         elif len(annotated_query.genres) > 0:
             # Genre query handler
-            ### 'how do you like your GENRE',
+            # 'how do you like your GENRE',
             # Write better handler when we get more genre questions
             print 'Genre Query'
             return DefaultQuery().generate_response(query, annotated_query)
@@ -86,9 +88,9 @@ class ChrisJones:
             # Theater-related questions
             print 'Theater Query'
             router = {
-            'what was your favorite show at THEATER': lambda x,y: TheaterQuery().generate_response(x, y),
-            'How has THEATER changed over time': lambda x,y: TheaterQuery().generate_response(x, y),
-            'I want to go to THEATER. Do you think it is good': lambda x,y: TheaterQuery().generate_response(x, y)
+                'what was your favorite show at THEATER': lambda x, y: TheaterQuery().generate_response(x, y),
+                'How has THEATER changed over time': lambda x, y: TheaterQuery().generate_response(x, y),
+                'I want to go to THEATER. Do you think it is good': lambda x, y: TheaterQuery().generate_response(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
@@ -97,9 +99,11 @@ class ChrisJones:
             # People-related questions
             print 'People Query'
             router = {
-            'what was PERSON best performance': lambda x,y: PersonThoughtsQuery().generate_response_best_performance(x, y),
-            'do you think PERSON is a good NOUN': lambda x,y: PersonThoughtsQuery().generate_response_good_noun(x, y),
-            'what do you think of PERSON': lambda x,y: PersonThoughtsQuery().generate_response(x, y)
+                'what was PERSON best performance': lambda x, y:
+                    PersonThoughtsQuery().generate_response_best_performance(x, y),
+                'do you think PERSON is a good NOUN': lambda x, y:
+                    PersonThoughtsQuery().generate_response_good_noun(x, y),
+                'what do you think of PERSON': lambda x, y: PersonThoughtsQuery().generate_response(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
@@ -109,25 +113,26 @@ class ChrisJones:
             print 'Show Query'
             router = {
                 'what did you think of SHOW': lambda x, y: self.sentiment_selector.generate_response(x, y),
-                'what do you think is the best SHOW right now': lambda x,y: ShowQuery().generate_response_best_show(x, y),
-                'what do you think of PERSON in SHOW': lambda x,y: ShowQuery().generate_response_person_in_show(x, y)
+                'what do you think is the best SHOW right now': lambda x, y:
+                    ShowQuery().generate_response_best_show(x, y),
+                'what do you think of PERSON in SHOW': lambda x, y: ShowQuery().generate_response_person_in_show(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
-        elif any(re.search(i, query) != None for i in ['Chicago', 'chicago', 'New York', 'NYC']):
+        elif any(re.search(i, query) is not None for i in ['Chicago', 'chicago', 'New York', 'NYC']):
             # Location and/or Chicago-based questions
             print 'Location/Chicago Query'
             router = {
-                'what embodies the essence of chicago theater': lambda x,y: LocationQuery().chicago_essence(x, y),
-                'how is chicago different from New York?': lambda x,y: LocationQuery().ny_v_chicago(x, y)
+                'what embodies the essence of chicago theater': lambda x, y: LocationQuery().chicago_essence(x, y),
+                'how is chicago different from New York?': lambda x, y: LocationQuery().ny_v_chicago(x, y)
             }
             # Find the closest question type and use it to access handler
             return self.call_handler(router, query, annotated_query)
 
         else:
             print 'Default Query'
-            ### What do you think is good NOUN
+            # What do you think is good NOUN
             return DefaultQuery().generate_response(query, annotated_query)
 
     def call_handler(self, router, query, annotated_query):
@@ -143,6 +148,7 @@ class ChrisJones:
         """
         question_type = process.extractOne(annotated_query.get_framework(), router.keys())[0]
         return router[question_type](query, annotated_query)
+
 
 if __name__ == '__main__':
     # Work on query routing now

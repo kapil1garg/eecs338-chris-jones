@@ -7,9 +7,13 @@ import copy
 import elastic
 import more_parsing as mp
 
+import pathos.pools as pp
+from tqdm import tqdm
+
+
 class AnnotatedArticlesUploader(object):
     """Class to quickly upload annotated documents to elastic search"""
-    def __init__(self, url, index, doc_type, fulltext, metadata, google_results, \
+    def __init__(self, url, index, doc_type, fulltext, metadata, google_results,
                  keys, fulltext_dir, metadata_dir, google_results_dir):
         """
         inputs:
@@ -34,6 +38,7 @@ class AnnotatedArticlesUploader(object):
         self.fulltext_dir = fulltext_dir
         self.metadata_dir = metadata_dir
         self.google_results_dir = google_results_dir
+        self.file_indices = dict(zip(list(self.fulltext), range(len(self.fulltext))))
 
     def combine_data(self, fulltext_dict, metadata_dict, google_results_dict):
         """
@@ -188,18 +193,34 @@ class AnnotatedArticlesUploader(object):
         inputs:
             reindex_nested_features (bool): optional boolean to reindex features for nested search
         """
-        counter = 0
-        for i in self.fulltext:
-            # check if corresponding file number can be found in each set
-            if i in self.metadata and i in self.google_results:
-                payload = self.combine_data(self.load_fulltext(i), self.load_metadata(i), \
-                                            self.load_annotations(i))
+        # start multithreading pool
+        processors = 4
+        pool = pp.ProcessPool(processors)
+        r = list(tqdm(pool.imap(self.upload_single_file_with_reindex, self.fulltext),
+                      total=len(self.fulltext)))
 
-                if reindex_nested_features:
-                    payload = self.reindex_features(payload)
+        pool.close()
+        pool.join()
 
-                elastic.upload(self.url, self.index, self.doc_type, str(counter), payload)
-                counter += 1
+    def upload_single_file_with_reindex(self, file):
+        # check if corresponding file number can be found in each set
+        if file in self.metadata and file in self.google_results:
+            payload = self.combine_data(self.load_fulltext(file), self.load_metadata(file),
+                                        self.load_annotations(file))
+
+            # reindex features
+            payload = self.reindex_features(payload)
+
+            elastic.upload(self.url, self.index, self.doc_type, str(self.file_indices[file]), payload)
+
+    def upload_single_file(self, file):
+        # check if corresponding file number can be found in each set
+        if file in self.metadata and file in self.google_results:
+            payload = self.combine_data(self.load_fulltext(file), self.load_metadata(file),
+                                        self.load_annotations(file))
+
+            elastic.upload(self.url, self.index, self.doc_type, str(self.file_indices[file]), payload)
+
 
 def main():
     """
@@ -214,11 +235,12 @@ def main():
     metadata = set([x for x in os.listdir(metadata_dir) if x.endswith('.txt')])
     google_annotations = set([x for x in os.listdir(google_annotations_dir) if x.endswith('.txt')])
 
-    aauploader = AnnotatedArticlesUploader(elastic.ES_URL, \
-                                         'flattened-articles', 'flattened-article', \
-                                         full_text, metadata, google_annotations, keys, \
-                                         full_text_dir, metadata_dir, google_annotations_dir)
+    aauploader = AnnotatedArticlesUploader(elastic.ES_URL,
+                                           'flattened-articles', 'flattened-article',
+                                           full_text, metadata, google_annotations, keys,
+                                           full_text_dir, metadata_dir, google_annotations_dir)
     aauploader.upload_to_es(reindex_nested_features=True)
+
 
 if __name__ == '__main__':
     main()

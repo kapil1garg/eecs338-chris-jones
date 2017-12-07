@@ -2,6 +2,8 @@
 This module is used to clean raw data retieved from Nexis
 """
 import re
+import os
+
 
 def split_article(article):
     """
@@ -28,6 +30,7 @@ def split_article(article):
 
     return full_text, metadata
 
+
 def write(lines, title):
     """
     Writes file to disk
@@ -36,10 +39,11 @@ def write(lines, title):
         lines (list): individual lines in file to write
         title (string): file name
     """
-    output_file = open(title, 'w')
+    output_file = open(title, 'w+')
     for line in lines:
         output_file.write(line)
     output_file.close()
+
 
 def write_article_to_file(article, index):
     """
@@ -50,8 +54,21 @@ def write_article_to_file(article, index):
         index (int): index of article loaded in
     """
     full_text, metadata = split_article(article)
-    write(full_text, 'clean_data/full_text/' + index)
-    write(metadata, 'clean_data/metadata/' + index)
+    curpath = os.path.abspath(os.curdir)
+
+    # check if output directories exist
+    full_text_dirname = os.path.dirname(curpath + '/clean_data/full_text/')
+    metadata_dirname = os.path.dirname(curpath + '/clean_data/metadata/')
+
+    if not os.path.exists(full_text_dirname):
+        os.makedirs(full_text_dirname)
+
+    if not os.path.exists(metadata_dirname):
+        os.makedirs(metadata_dirname)
+
+    write(full_text, curpath + '/clean_data/full_text/' + index)
+    write(metadata, curpath + '/clean_data/metadata/' + index)
+
 
 def find_articles(sections):
     """
@@ -70,6 +87,7 @@ def find_articles(sections):
             articles.append(section)
     return articles
 
+
 def find_sections(file_name):
     """
     Parses different sections out
@@ -83,7 +101,7 @@ def find_sections(file_name):
     input_file = open(file_name)
     text = input_file.readlines()
 
-    break_text = "____________________________________________________________\r\n"
+    break_text = '____________________________________________________________\r\n'
 
     current_section = []
     all_sections = []
@@ -97,6 +115,7 @@ def find_sections(file_name):
     all_sections.append(current_section)
 
     return all_sections
+
 
 def write_file(file_name, i):
     """
@@ -113,6 +132,7 @@ def write_file(file_name, i):
         index = str(i) + str(j) + '.txt'
         write_article_to_file(articles[j], index)
 
+
 def main():
     """
     Called when module is called from command line
@@ -120,8 +140,9 @@ def main():
     base_file_name = 'ChrisJones-'
 
     for i in range(0, 9):
-        file_name = 'raw_data/' + base_file_name + str(i) +'.txt'
+        file_name = 'raw_data/' + base_file_name + str(i) + '.txt'
         write_file(file_name, i)
+
 
 if __name__ == '__main__':
     main()

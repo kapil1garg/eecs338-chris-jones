@@ -8,10 +8,15 @@ import re
 from copy import deepcopy
 import json
 import os
+
 import elastic
+
+from multiprocessing import Pool
 from google_nlp_api import GoogleNlp
+from tqdm import tqdm
 
 PATH_TO_KEYS = 'data/keys.txt'
+
 
 def get_possible_keys(key_file_path):
     """
@@ -28,6 +33,7 @@ def get_possible_keys(key_file_path):
         for k in file_name.readlines():
             key_dict[k.rstrip()] = None
     return key_dict
+
 
 def parse_document(doc_file_path, allowed_keys):
     """
@@ -53,7 +59,7 @@ def parse_document(doc_file_path, allowed_keys):
             match_locs[k] = None
 
     # get the sorted order of the keys
-    matches = {k: v for (k, v) in match_locs.items() if v != None}
+    matches = {k: v for (k, v) in match_locs.items() if v is not None}
     sorted_keys = sorted(matches, key=lambda x: matches[x])
 
     # parse file
@@ -67,6 +73,7 @@ def parse_document(doc_file_path, allowed_keys):
         parsed_data[sorted_keys[i]] = full_doc[start_loc:end_loc]
 
     return parsed_data
+
 
 def parse_metadata(doc_file_path):
     """
@@ -90,36 +97,43 @@ def parse_metadata(doc_file_path):
 
     return meta_data_dict
 
+
+def get_annotation_for_file(file_name):
+    """
+    Gets annotations from google's NLP API in parallel
+
+    inputs:
+        filenames (list of strings): list of files to annotate
+    """
+    keys = get_possible_keys(PATH_TO_KEYS)
+    google = GoogleNlp()
+
+    parsed_document = parse_document('data/clean_data/full_text/' + file_name, keys)
+    google_annotation = google.annotate_text(parsed_document['Full text:'])
+    doc = json.dumps(google_annotation)
+
+    # write annotations to disk
+    with open('data/google_results/' + file_name, 'w') as tmp:
+        tmp.write(doc)
+
+
 def main():
     """
     Function called when module called from command line
     """
-    keys = get_possible_keys(PATH_TO_KEYS)
-    google = GoogleNlp()
-    es_url = 'http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com/'
-    # print parse_document('data/clean_data/full_text/0114.txt', keys)['Full text:']
 
-    ctr = 0
-    for file_name in os.listdir('data/clean_data/full_text')[0:5]:
-        if file_name.endswith('.txt'):
-            # get document and annotations for it from google nlp
-            parsed_document = parse_document('data/clean_data/full_text/' + file_name, keys)
-            google_annotation = google.annotate_text(parsed_document['Full text:'])
-            doc = json.dumps(google_annotation)
+    # only upload files that don't have annotations yet
+    parsed_google_files = set(os.listdir('data/google_results'))
+    files_to_upload = [file for file in os.listdir('data/clean_data/full_text')
+                       if file.endswith('.txt') and file not in parsed_google_files]
 
-            # write annotations to disk
-            with open('data/google_results/' + file_name, 'w') as tmp:
-                tmp.write(doc)
+    # start multithreading pool
+    processors = 4
+    pool = Pool(processors)
+    r = list(tqdm(pool.imap(get_annotation_for_file, files_to_upload), total=len(files_to_upload)))
 
-            # upload to elastic search
-            elastic.upload(es_url, 'articles', 'article', str(ctr),
-                           parse_document('data/clean_data/full_text/' + file_name, keys))
-            ctr += 1
-
-    # parse metadata
-    for file_name in os.listdir('data/clean_data/metadata/')[0:5]:
-        if file_name.endswith('.txt'):
-            print parse_metadata('data/clean_data/metadata/' + file_name)
+    pool.close()
+    pool.join()
 
 
 if __name__ == '__main__':

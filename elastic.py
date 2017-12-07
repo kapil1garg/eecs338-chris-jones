@@ -4,7 +4,8 @@ This module is used to query elastic search
 import json
 import requests
 
-ES_URL = "http://search-eecs338-chris-jones-efkwegghpwqww5sfz2225th27y.us-west-2.es.amazonaws.com/"
+ES_URL = "https://search-chris-jones-demo-tvyrpelzvfovopq4dss46qojdq.us-west-2.es.amazonaws.com"
+
 
 def upload(url, index, doc_type, idx, data):
     """
@@ -18,6 +19,7 @@ def upload(url, index, doc_type, idx, data):
         data (dict): dictionary of data to upload
     """
     requests.post(url + '/' + index + '/' + doc_type + '/' + idx, json.dumps(data))
+
 
 def search(url, index, data):
     """

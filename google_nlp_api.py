@@ -14,6 +14,7 @@ DISCOVERY_URL = ('https://{api}.googleapis.com/'
                  '$discovery/rest?version={apiVersion}')
 ENCODING_TYPE = 'UTF32'
 
+
 class GoogleNlp(object):
     """
     This class is a wrapper for the Google Natural Language API. Authentication
@@ -95,7 +96,7 @@ class GoogleNlp(object):
         response = service_request.execute()
         return response
 
-    def annotate_text(self, text_string, extract_syntax=True, extract_entities=True, \
+    def annotate_text(self, text_string, extract_syntax=True, extract_entities=True,
                       extract_sentiment=True):
         """
         Run entity extraction on text from a string using the Google
@@ -127,8 +128,6 @@ class GoogleNlp(object):
         response = service_request.execute()
         return response
 
-
-
     def analyze_sentiment_file(self, text_file):
         """
         Run sentiment analysis on text from a file using the Google
@@ -151,7 +150,8 @@ class GoogleNlp(object):
         with open(text_file, 'r') as input_file:
             return self.analyze_entities(input_file.read())
 
-    def annotate_text_file(self, text_file, extract_syntax=True, extract_entities=True, \
+    def annotate_text_file(self, text_file, extract_syntax=True, extract_entities=True,
+
                            extract_sentiment=True):
         """
         Run entity extraction on text from a file using the Google
@@ -172,6 +172,7 @@ class GoogleNlp(object):
                                       extract_entities=extract_entities,
                                       extract_sentiment=extract_sentiment)
 
+
 def main():
     """
     Called when module is called from command line
@@ -186,6 +187,7 @@ def main():
     print google_nlp.analyze_sentiment_file(args.text_file)
     print google_nlp.analyze_entities_file(args.text_file)
     print google_nlp.annotate_text_file(args.text_file)
+
 
 if __name__ == '__main__':
     main()

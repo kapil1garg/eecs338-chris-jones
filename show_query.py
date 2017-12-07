@@ -1,9 +1,8 @@
 import json
-import re
 import elastic
-import numpy
 from operator import itemgetter
 from default_query import DefaultQuery
+
 
 class ShowQuery(DefaultQuery):
     """
@@ -40,9 +39,9 @@ class ShowQuery(DefaultQuery):
                         'ids': {
                             'values': [id_max_polarity]
                         }},
-                             {'nested' : {
-                                 'path' : 'sentences',
-                                 'query' : {
+                             {'nested': {
+                                 'path': 'sentences',
+                                 'query': {
                                      'bool': {
                                          'must': [{'match': {'sentences.content': p}} for p in annotated_query.shows]
                                      }

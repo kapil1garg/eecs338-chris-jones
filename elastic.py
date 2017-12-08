@@ -18,7 +18,8 @@ def upload(url, index, doc_type, idx, data):
         idx (int): id number
         data (dict): dictionary of data to upload
     """
-    requests.post(url + '/' + index + '/' + doc_type + '/' + idx, json.dumps(data))
+    r = requests.post(url + '/' + index + '/' + doc_type + '/' + idx, json.dumps(data))
+    print r.text
 
 
 def search(url, index, data):

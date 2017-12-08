@@ -90,7 +90,9 @@ class ShowQuery(DefaultQuery):
             }
         }
 
-        r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))['hits']['hits']
+        r = json.loads(elastic.search(elastic.ES_URL, '/flattened-articles/_search', payload))
+        print r
+        r = r['hits']['hits']
         r = [(i['inner_hits']['sentences']['hits'], i['_source']['ProQ:'], i['_source']['Full text:']) for i in r]
 
         return self.format_response(r[0])

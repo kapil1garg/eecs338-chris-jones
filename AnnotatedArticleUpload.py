@@ -8,6 +8,7 @@ import elastic
 import more_parsing as mp
 
 import pathos.pools as pp
+from pathos.helpers import cpu_count
 from tqdm import tqdm
 
 
@@ -186,21 +187,33 @@ class AnnotatedArticlesUploader(object):
 
         return output_dict
 
-    def upload_to_es(self, reindex_nested_features=False):
+    def upload_to_es(self, parallel=True, reindex_nested_features=False):
         """
         Loops through each file, loads in dictionaries, combines, and uploads to elastic search
 
         inputs:
             reindex_nested_features (bool): optional boolean to reindex features for nested search
         """
-        # start multithreading pool
-        processors = 4
-        pool = pp.ProcessPool(processors)
-        r = list(tqdm(pool.imap(self.upload_single_file_with_reindex, self.fulltext),
-                      total=len(self.fulltext)))
+        if not parallel:
+            for x in self.fulltext:
+                if reindex_nested_features:
+                    self.upload_single_file_with_reindex(x)
+                else:
+                    self.upload_single_file(x)
+        else:
+            # start multithreading pool
+            processors = cpu_count()
+            pool = pp.ProcessPool(processors)
 
-        pool.close()
-        pool.join()
+            if reindex_nested_features:
+                r = list(tqdm(pool.imap(self.upload_single_file_with_reindex, self.fulltext),
+                                total=len(self.fulltext)))
+            else:
+                r = list(tqdm(pool.imap(self.upload_single_file, self.fulltext),
+                                total=len(self.fulltext)))
+
+            pool.close()
+            pool.join()
 
     def upload_single_file_with_reindex(self, file):
         # check if corresponding file number can be found in each set
@@ -239,7 +252,7 @@ def main():
                                            'flattened-articles', 'flattened-article',
                                            full_text, metadata, google_annotations, keys,
                                            full_text_dir, metadata_dir, google_annotations_dir)
-    aauploader.upload_to_es(reindex_nested_features=True)
+    aauploader.upload_to_es(parallel=False, reindex_nested_features=True)
 
 
 if __name__ == '__main__':

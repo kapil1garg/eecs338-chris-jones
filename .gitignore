@@ -302,3 +302,7 @@ jspm_packages
 data/clean_data/full_text
 data/clean_data/metadata
 data/google_results
+
+# Ignore key files
+service-account-key.json
+

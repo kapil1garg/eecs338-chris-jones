@@ -1,8 +1,10 @@
 import os
 import time
+import json
 from slackclient import SlackClient
-from chrisjones import ChrisJones
 import string
+from urllib import urlencode
+from urllib2 import Request, urlopen
 
 # constants
 READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
@@ -13,7 +15,6 @@ class SlackBot:
         self.bot_id = bot_id
         self.bot_tag = '<@' + bot_id + '>'
         self.client = SlackClient(token)
-        self.controller = ChrisJones()
 
     def listen(self):
         if self.client.rtm_connect():
@@ -32,8 +33,12 @@ class SlackBot:
             are valid commands. If so, then acts on the commands. If not,
             returns back what it needs for clarification.
         """
-        response = self.controller.respond(command)
-        self.client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+        url = 'http://127.0.0.1:5000/chrisjones/api/v1.0/respond'
+        post_fields = {'query': command}
+        request = Request(url, urlencode(post_fields).encode())
+        response = json.loads(urlopen(request).read())
+
+        self.client.api_call("chat.postMessage", channel=channel, text=response['response'], as_user=True)
 
     def parse_slack_output(self, slack_rtm_output):
         """

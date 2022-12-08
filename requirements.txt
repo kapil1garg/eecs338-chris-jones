@@ -1,7 +1,7 @@
 Flask==0.11.1
 Flask-API==1.0
 asn1crypto==0.22.0
-certifi==2017.7.27.1
+certifi==2022.12.7
 cffi==1.10.0
 chardet==3.0.4
 closure-linter==2.3.19
